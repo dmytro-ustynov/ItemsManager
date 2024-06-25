@@ -1,0 +1,10 @@
+.frame{
+    position: relative;
+    top: -86px;
+    height: 126px;
+    width: 100%;
+}
+#root{
+    position: relative;
+    top: -90px;
+}

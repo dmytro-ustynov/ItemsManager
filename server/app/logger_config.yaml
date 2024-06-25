@@ -1,0 +1,17 @@
+# for development locally
+logging:
+  version: 1
+  formatters:
+    simple:
+      format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  handlers:
+    server-file:
+      class: logging.FileHandler
+      level: INFO
+      filename: ../data/logs/server.log
+      formatter: simple
+  loggers:
+    server:
+      level: INFO
+      handlers: [server-file]
+      propagate: no

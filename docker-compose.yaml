@@ -1,0 +1,54 @@
+  version: "3.8"
+  services:
+    server:
+      build: ./server
+      restart: always
+      container_name: items-server
+      ports:
+        - "5000:5000"
+      depends_on:
+        - mongo
+      environment:
+        DB_HOST: ${DB_HOST}
+        DB_PORT: ${DB_PORT}
+        DB_NAME: ${DB_NAME}
+        DB_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+        DB_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+        DB_COLLECTIONS: ${DB_COLLECTIONS}
+        JWT_SECRET: ${JWT_SECRET}
+        JWT_ALGORITHM: ${JWT_ALGORITHM}
+        CLIENT_HOST: ${CLIENT_HOST}
+        CLIENT_PORT: ${CLIENT_PORT}
+        FILE_FOLDER: ${FILE_FOLDER}
+      hostname: api
+      volumes:
+        - ./server/data/:/code/data/
+        - ./server/data/logs:/code/data/logs/
+    client:
+      restart: always
+      container_name: items-client
+      build:
+        context: ./client
+        args:
+          REACT_APP_SERVER_HOST: ${CLIENT_HOST}
+          REACT_APP_SERVER_PORT: ${CLIENT_PORT}
+      depends_on:
+        - server
+      ports:
+        - "80:80"
+      stdin_open: true
+      tty: true
+      environment:
+        REACT_APP_SERVER_HOST: ${CLIENT_HOST}
+        REACT_APP_SERVER_PORT: ${CLIENT_PORT}
+    mongo:
+      image: mongo:4.4.18
+      restart: always
+      container_name: items-db
+      volumes:
+        - /data/db
+      ports:
+        - "27017:27017"
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
