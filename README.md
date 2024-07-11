@@ -50,8 +50,10 @@ Creating items-client ... done
 
 6. Load items to DB. You may upload the collection to MongoDB Manually, or create admin user and load them from xls file.
 
-7. Create admin user. Go to http://localhost:5000/docs#/user/user_signup_user_signup_post. 
- - Create user using this endpoint, Press try it put and write username and password as json. Not well secured, I know, but you need it only once. And it fits well for internal use. And for every other admin user you will utilize operating this app.
+To upload manually - connect to your Database with the 3rd party tool like MongoDB Compass or Robo 3T with credentials you have specified in `.env` file and insert items to the collection "ITEMS".
+
+7. Create root user. Go to http://localhost:5000/docs#/user/user_signup_user_signup_post. 
+ - Create user using this endpoint, Press try it put and write username "root" and password as json. Not well secured, I know, but you need it only once. And it fits well for internal use. And for every other admin user you will utilize operating this app. Remember the root password, you will need it to approve other users.
 
 8. Prepare xls table with items you want to add.
 Required fields are only :

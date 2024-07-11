@@ -4,16 +4,17 @@ from fastapi.responses import FileResponse
 
 from server.app.auth.jwt_bearer import JWTBearer
 from server.app.auth.user import User
-from server.app.auth.utils import RequestGetter, get_request_id
+from server.app.auth.utils import get_request_id
 from server.app.dal.mongo_manager import MongoManagerConnectionError
 from server.app.dal.query_builder import QueryBuilder
-from server.app.dependencies import MM, do_pagination, logger, get_filters_from_request, NoteRequest, ItemsRequest, \
-    UpdateItemRequest, CreateItemRequest
+from server.app.dependencies import MM, do_pagination, logger, get_filters_from_request
 from server.app.file_manager.file_manager import FileManager, FileExtension
-from server.app.items.item import Item, FieldNames, SERVICES
+from server.app.items.item import Item, FieldNames
+from server.app.items.schemas import NoteRequest, ItemsRequest, UpdateItemRequest, CreateItemRequest
 
 router = APIRouter(prefix='/items',
-                   tags=['ITEMS'])
+                   tags=['ITEMS'],
+                   dependencies=[Depends(JWTBearer(auto_error=False))])
 
 
 @router.get("/", summary="Get all items from db")
@@ -44,7 +45,6 @@ async def get_items(search_string: str = None, skip: int = None, limit: int = No
         return {"result": False}
 
 
-
 @router.get("/item/{inv_number}")
 async def get_single_item(inv_number: str):
     item = MM.query(Item).get(**{FieldNames.inventory_number: inv_number})
@@ -69,10 +69,6 @@ def filter_items(filters: dict = Depends(get_filters_from_request)):
         if younger_than:
             query.update(QueryBuilder.younger_than_query(younger_than))
     if service:
-        if service == "SZ":
-            service = SERVICES.sz
-        if service == "VNLZ":
-            service = SERVICES.vnlz
         query.update({FieldNames.service: service})
     if category:
         query.update(QueryBuilder.category_query(category))
@@ -84,8 +80,7 @@ def filter_items(filters: dict = Depends(get_filters_from_request)):
         raise HTTPException(status_code=432, detail=str(e))
 
 
-@router.post("/save_note", summary="Add a note for the item with selected ID",
-             dependencies=[Depends(JWTBearer(auto_error=False))])
+@router.post("/save_note", summary="Add a note for the item with selected ID")
 async def save_note(note_request: NoteRequest):
     object_id = note_request.object_id
     note = note_request.note
@@ -123,8 +118,7 @@ async def export(ids_request: ItemsRequest):
         return {"result": False, "details": str(e)}
 
 
-@router.post("/update", summary="Add fields to existing item",
-             dependencies=[Depends(JWTBearer(auto_error=False))])
+@router.post("/update", summary="Add fields to existing item")
 async def update_item(update_request: UpdateItemRequest):
     item_id = update_request.item_id
     item = MM.query(Item).get(_id=ObjectId(item_id))
@@ -146,7 +140,7 @@ async def update_item(update_request: UpdateItemRequest):
     return {"result": True, "item": updated_item}
 
 
-@router.post("/create", summary="Create new item", dependencies=[Depends(JWTBearer(auto_error=False))])
+@router.post("/create", summary="Create new item")
 async def create_new_item(item: CreateItemRequest):
     new_item = MM.query(Item).create(item.to_dict())
     if new_item:
@@ -156,8 +150,8 @@ async def create_new_item(item: CreateItemRequest):
         logger.error("Error creating new item ")
         return {"result": False, "details": "Error creating new item "}
 
-@router.delete("/{item_id}", summary="delete element by its id from database, use root token to delete",
-               dependencies=[Depends(JWTBearer(auto_error=False))])
+
+@router.delete("/{item_id}", summary="delete element by its id from database, use root token to delete")
 async def delete_item(item_id: str, token: str):
     root_user = MM.query(User).get(username='root')
     if not root_user or not root_user.check_password(token):

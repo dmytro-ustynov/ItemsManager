@@ -1,0 +1,4 @@
+# this file is intended for development
+services:
+  1 : "ВНЛЗ"
+  2 : "СЗ"

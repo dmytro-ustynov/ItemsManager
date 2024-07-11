@@ -12,9 +12,8 @@
         DB_HOST: ${DB_HOST}
         DB_PORT: ${DB_PORT}
         DB_NAME: ${DB_NAME}
-        DB_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-        DB_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-        DB_COLLECTIONS: ${DB_COLLECTIONS}
+        DB_USERNAME: ${DB_USERNAME}
+        DB_PASSWORD: ${DB_PASSWORD}
         JWT_SECRET: ${JWT_SECRET}
         JWT_ALGORITHM: ${JWT_ALGORITHM}
         CLIENT_HOST: ${CLIENT_HOST}
@@ -47,8 +46,10 @@
       container_name: items-db
       volumes:
         - /data/db
+        - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
       ports:
         - "27017:27017"
       environment:
-        MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+        MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+        MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+        MONGO_INITDB_DATABASE: ${DB_NAME}

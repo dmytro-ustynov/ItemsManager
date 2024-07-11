@@ -6,8 +6,7 @@ from decouple import config as ENV
 
 
 VARIABLES = ("DB_HOST", "DB_PORT", "DB_NAME",
-             "DB_USERNAME", "DB_PASSWORD",
-             "DB_COLLECTIONS")
+             "DB_USERNAME", "DB_PASSWORD")
 
 CONFIG = {e: ENV(e, e) for e in VARIABLES}
 
@@ -29,7 +28,7 @@ class MongoManager:
         user = config.get('DB_USERNAME')
         password = config.get('DB_PASSWORD')
         self.connected = False
-        self.collection_names = [c.strip() for c in config.get('DB_COLLECTIONS', 'users').split(',')]
+        self.collection_names = ["USERS", "ITEMS"]
         connection_line = f'mongodb://{user}:{password}@{host}:{port}'
         self._client = MongoClient(connection_line, serverSelectionTimeoutMS=5000)
         self._reconnect_timer = 15     # reconnect attempt timer

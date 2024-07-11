@@ -13,7 +13,7 @@ router = APIRouter(prefix='',
 
 
 @router.post("/user/signup")
-def user_signup(user: UserSchema = Body(default=None)):
+def user_signup(user: UserSchema):
     if MM.query(User).get(username=user.username) is not None:
         return {'result': False,
                 'details': 'email already registered'}
@@ -77,8 +77,9 @@ async def logout(response: Response):
     # unset_jwt_cookies(response)
     return {"msg": "logout OK"}
 
+
 @router.post("/user/approve_user/", dependencies=[Depends(JWTBearer(auto_error=False))])
-async def approve_user(user_id:str, token: str, response: Response):
+async def approve_user(user_id: str, token: str, response: Response):
     root_user = MM.query(User).get(username='root')
     if not root_user.check_password(token):
         return {'result': False, 'details': 'can not validate root credentials'}

@@ -7,7 +7,7 @@ from server.app.auth.jwt_bearer import JWTBearer
 from server.app.auth.user import User
 from server.app.dependencies import logger, MM
 from server.app.file_manager.file_manager import FileManager, FileExtension
-from server.app.items.item import FieldNames, SERVICES, Item
+from server.app.items.item import FieldNames,  Item
 
 router = APIRouter(prefix='/files',
                    tags=['FILES'])

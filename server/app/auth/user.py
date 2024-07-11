@@ -10,8 +10,8 @@ class UserSchema(BaseModel):
     password: str = Field(default=None)
 
     class Config:
-        schema = {
-            'user_demo': {
+        json_schema_extra = {
+            'example': {
                 'username': 'John Doe',
                 'password': 'password',
             }
@@ -23,7 +23,7 @@ class UserLoginSchema(BaseModel):
     password: str = Field(default=None)
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             'example': {
                 'username': 'admin',
                 'password': '12345',
@@ -61,7 +61,7 @@ class User:
     @staticmethod
     def create_password(password_string: str):
         """
-        Creates a hashed password reaady to save in the DB
+        Creates a hashed password ready to save in the DB
         :param password_string: password in string format
         :return:
         """
@@ -77,11 +77,11 @@ class User:
                     is_active=True
                     )
 
-    def toJSON(self):
-        """
-        :return: json object for the user entity
-        """
-        return json.dumps({
-            'user_id': self.user_id,
-            'username': self.username,
-        })
+    # def toJSON(self):
+    #     """
+    #     :return: json object for the user entity
+    #     """
+    #     return json.dumps({
+    #         'user_id': self.user_id,
+    #         'username': self.username,
+    #     })

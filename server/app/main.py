@@ -1,5 +1,3 @@
-import os
-from enum import Enum
 from time import time
 import uvicorn
 from fastapi import FastAPI
@@ -35,16 +33,10 @@ app.add_middleware(
 )
 
 
-class FilterPreset(Enum):
-    older_than = 'older'
-    only_sz = 'only_sz'
-    only_vnlz = 'only_vnlz'
-
-
 @app.get("/")
 def index():
     logger.info('Server running ok')
-    return {"server": "Items manager","version": "1.01", "time": time()}
+    return {"server": "Items manager", "version": "1.02", "time": time()}
 
 
 if __name__ == '__main__':

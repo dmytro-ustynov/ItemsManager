@@ -48,7 +48,10 @@ function SearchFilterBlock() {
         let item_ids = []
         items.map((i) => item_ids.push(i._id))
         const url = BASE_URL + EXPORT_URL
-        const result = await fetcher({url, method: "POST", payload: {item_ids: item_ids}, asFile: true})
+        const result = await fetcher({
+            url, method: "POST", credentials: true,
+            payload: {item_ids: item_ids}, asFile: true
+        })
         const blobUrl = window.URL.createObjectURL(result)
         const anchor = document.createElement("a")
         anchor.href = blobUrl

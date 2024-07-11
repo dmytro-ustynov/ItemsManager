@@ -12,7 +12,8 @@ class FileExtension:
 
 
 class FileManager:
-    XLS_CONTENT_TYPES = ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', )
+    XLS_CONTENT_TYPES = (
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel')
 
     @staticmethod
     def create_file(items, extension):
@@ -130,8 +131,8 @@ class FileManager:
             item = {}
             for j in range(1, len(titles)):
                 value = sheet.cell(i, j).value
-                if value and titles[j-1] != FieldNames.ID:
-                    item[titles[j-1]] = value
+                if value and titles[j - 1] != FieldNames.ID:
+                    item[titles[j - 1]] = value
             data.append(item)
             i += 1
             j = 1

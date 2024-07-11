@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.11-slim-buster
 
 # Set the working directory to /app.
 WORKDIR /code
@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container at /app.
 COPY ./app /code/server/app
 COPY ./logger_config.yaml /code
+COPY ./config.yaml /code
 
 ENV DB_PORT=27017
 ENV CLIENT_HOST=localhost

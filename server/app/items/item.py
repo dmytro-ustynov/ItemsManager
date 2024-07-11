@@ -1,3 +1,6 @@
+from server.app.dependencies import SERVICE_TO_NUMBER_MAPPER
+
+
 class FieldNames:
     ID = "_id"
     service = "служба"
@@ -26,17 +29,6 @@ class FieldNames:
                       and not v in restricted and not 'server' in v])
 
 
-class SERVICES:
-    vnlz = "ВНЛЗ"
-    sz = "СЗ"
-
-
-SERVICE_TO_NUMBER_MAPPER = {
-    SERVICES.vnlz: 1,
-    SERVICES.sz: 2
-}
-
-
 class Item:
     __collection__ = "ITEMS"
 
@@ -48,7 +40,8 @@ class Item:
     def to_dict(self):
         result = {k: v for k, v in self.__dict__.items()}
         result["_id"] = str(self._id)
-        result["service_number"] = self.service_number()
+        if 'service_number' not in result:
+            result["service_number"] = self.service_number()
         if self.__dict__.get(FieldNames.inventory_number):
             result["inventory"] = self.__dict__.get(FieldNames.inventory_number, "")
         return result

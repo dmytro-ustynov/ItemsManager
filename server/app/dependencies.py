@@ -1,15 +1,12 @@
 import logging
 import os
-from uuid import UUID
-
 import yaml
-from enum import Enum
 from logging.config import dictConfig
-from pydantic import BaseModel, Field
 from server.app.dal.mongo_manager import MongoManager
-from server.app.items.item import FieldNames, SERVICES
 
 LOG_YAML = os.path.join(os.getcwd(), 'logger_config.yaml')
+
+CONFIG_YAML = os.path.join(os.getcwd(), 'config.yaml')
 
 with open(LOG_YAML, 'r') as cfg:
     logger_config = yaml.safe_load(cfg).get('logging')
@@ -19,73 +16,18 @@ logger = logging.getLogger('server')
 
 MM = MongoManager()
 
+with open(CONFIG_YAML, 'r') as yml:
+    app_config = yaml.safe_load(yml)
 
-class Service(str, Enum):
-    SZ = "СЗ"
-    VNLZ = "ВНЛЗ"
+# class Service(str, Enum):
+#     SZ = "СЗ"
+#     VNLZ = "ВНЛЗ"
 
+SERVICES_ = app_config.get('services')
+#    {1: "СЗ", 2: "ВНЛЗ", ... }
 
-class NoteRequest(BaseModel):
-    object_id: str
-    note: str
-
-
-class ItemsRequest(BaseModel):
-    item_ids: list[str]
-
-
-class NewFieldObject(BaseModel):
-    newFieldName: str
-    newFieldValue: str
-
-
-class UpdateItemRequest(BaseModel):
-    item_id: str
-    payload: NewFieldObject
-
-
-class CreateItemRequest(BaseModel):
-    name: str = Field(..., min_length=5)
-    inventory_number: str = Field(..., min_length=5)
-    service: Service
-    year: str = None
-    serial: str = None
-    payload: dict = None
-
-    class Config:
-        schema_extra = {
-            'example': {
-                'name': 'щось новеньке',
-                'service': 'ВНЛЗ',
-                'inventory_number': "123456"
-            }
-        }
-
-    def get_service(self):
-        mapper = {
-            Service.SZ: SERVICES.sz,
-            Service.VNLZ: SERVICES.vnlz
-        }
-        return mapper.get(self.service)
-
-    def to_dict(self):
-        result = {FieldNames.name: self.name,
-                  FieldNames.inventory_number: self.inventory_number,
-                  FieldNames.service: self.get_service(),
-                  }
-        if self.year:
-            result[FieldNames.year] = self.year
-        if self.serial:
-            result[FieldNames.serial] = self.serial
-        if self.payload:
-            result = {**self.payload, **result}
-        return result
-
-    def validate_name(self):
-        if not self.name:
-            raise ValueError('name must not be empty')
-        if self.name == 'string':
-            raise ValueError('not valid name')
+SERVICE_TO_NUMBER_MAPPER = {v: k for k, v in SERVICES_.items()}
+#     {"СЗ": 1, ... }
 
 
 def get_item_list_from_request(body: dict):
