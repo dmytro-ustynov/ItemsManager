@@ -1,5 +1,5 @@
-import React, {useContext} from "react";
-import {serviceCounter} from "../utils/counters";
+import React, {useContext, useEffect, useState} from "react";
+import {countServiceNumbers} from "../utils/counters";
 import {StoreContext} from "../store/store";
 import refreshGif from "../images/icons8-refresh.gif"
 import {observer} from "mobx-react";
@@ -10,33 +10,26 @@ function Loader() {
 }
 
 function TotalInfo() {
-    // const items = store.items
 
     const store = useContext(StoreContext)
     const {items, pending} = store
+    const [counters, setCounters] = useState({})
 
-    const counterVNLZ = () => {
-        return serviceCounter(items, 1)
-    }
-    const counterSZ = () => {
-        return serviceCounter(items, 2)
-    }
-
-    const serviceInfo = (service) => {
-
-    }
+    useEffect(() => {
+        let _counters = countServiceNumbers(items)
+        console.log(_counters)
+        setCounters(_counters)
+    }, [items, items.length]);
 
     return (
         <div className={"search-handlers"}>
             <div className={"info-total"}>
                 Всього: {pending ? <Loader/> : items.length}
             </div>
-            {/*<div className={"info-vnlz"}>&#10687; - ВНЛЗ: {pending? <Loader /> :counterVNLZ()} </div>*/}
-            {/*<div className={"info-sz"}>&#10687; - Служба зв'язку: {pending?<Loader /> : counterSZ()}</div>*/}
             {Object.keys(SERVICES).map((key) => {
                 return <div key={key}
                             className={`info-${SERVICES[key].icon}`}>&#10687; - {SERVICES[key].name}: {pending ?
-                    <Loader/> : serviceCounter(items, key)}</div>
+                    <Loader/> : counters[key]}</div>
             })}
         </div>
     )
