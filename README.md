@@ -10,7 +10,9 @@ This app was build as an internal use tool to manage items - quickly find them m
 
 The search works by name or by inventory number
 
-Everyone who has access to the tool can search , filter and export the list, but only authorized admin can add notations, add new field (property) to the existing item, or add a new one.
+Every authorized person can search , filter and export the list, add new field (property) to the existing item, or create new items, but only root user can add new users or delete items.
+
+Unathorized users can not see any items.
 
 ## Decisions
 
@@ -70,6 +72,13 @@ To upload manually - connect to your Database with the 3rd party tool like Mongo
 
 7. Create root user. Go to http://localhost:5000/docs#/user/user_signup_user_signup_post. 
  - Create user using this endpoint, Press try it put and write username "root" and password as json. Not well secured, I know, but you need it only once. And it fits well for internal use. And for every other admin user you will utilize operating this app. Remember the root password, you will need it to approve other users.
+```json
+{
+   "username" :"root", 
+   "password": "your_password_here"
+}
+ ``` 
+   ![img3.png](images/img3.png)
 
 8. Prepare xls table with items you want to add.
 Required fields are only :
