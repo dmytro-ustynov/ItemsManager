@@ -26,15 +26,7 @@ class QRCodeGenerator:
         QRcode = qrcode.QRCode(
             error_correction=qrcode.constants.ERROR_CORRECT_H
         )
-
-        # taking url or text
-        # url = 'https://www.geeksforgeeks.org/'
-        # url = self.data
-
-        # adding URL or text to QRcode
         QRcode.add_data(self.url)
-
-        # generating QR code
         QRcode.make()
 
         QRimg = QRcode.make_image(
@@ -48,7 +40,7 @@ class QRCodeGenerator:
 
         # save the QR code generated
         QRimg.save('gfg_QR.png')
-        print('QR code generated!')
+        # print('QR code generated!')
         self.ready = True
         self.img = QRimg
 

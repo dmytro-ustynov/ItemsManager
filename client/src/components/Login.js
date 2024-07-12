@@ -96,8 +96,14 @@ export default function Login() {
             }, 1000)
             console.log(`user logged in`)
         } else {
-            setErrorMsg(data.details)
-            dispatch({type: authTypes.LOGIN_ERROR, error: data.errors});
+            let errMsg
+            if (data.status === 500) {
+                errMsg = 'Server error, please try later'
+            } else {
+                errMsg = data.details
+            }
+            setErrorMsg(errMsg)
+            dispatch({type: authTypes.LOGIN_ERROR, error: errMsg});
         }
         setPending(false)
     }

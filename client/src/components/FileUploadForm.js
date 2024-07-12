@@ -80,8 +80,12 @@ export default function FileUploadForm({open, setOpen}) {
                 {uploadResult && <> Завантажено <strong>{uploadCount}</strong> нових елементів.</>}
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => setOpen(false)}>Cancel</Button>
-                <Button onClick={submitUpload} disabled={!formReady} type={'submit'}>Upload</Button>
+                {uploadResult ? <Button variant="contained" color="success"
+                                         onClick={() => window.location='/'}>Оновити сторінку</Button> : <>
+                    <Button onClick={() => setOpen(false)}>Відміна</Button>
+                    <Button onClick={submitUpload} disabled={!formReady} type={'submit'}>Завантажити</Button>
+                </>
+                }
             </DialogActions>
         </form>
     )

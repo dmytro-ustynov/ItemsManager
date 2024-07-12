@@ -34,6 +34,6 @@ export async function fetcher(params) {
     }
   } catch (e) {
     console.warn(`oops, smth wrong at our side, please try later: ${e}`)
-    return {result: false, details: e}
+    return {result: false, details: e, status: 500}
   }
 }

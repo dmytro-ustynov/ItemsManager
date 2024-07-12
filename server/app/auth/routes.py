@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Response, Request, Depends
+from fastapi import APIRouter, Response, Request, Depends
 
 from .jwt_bearer import JWTBearer
 from .jwt_handler import sign_jwt
