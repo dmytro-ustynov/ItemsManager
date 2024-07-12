@@ -10,13 +10,14 @@ import {
     TextField
 } from "@mui/material";
 import {useContext, useState} from "react";
-import {BASE_URL, CATEGORIES, EXPORT_URL} from "../utils/constants";
+import {BASE_URL, EXPORT_URL} from "../utils/constants";
 import {fetcher} from "../utils/fetch_utils";
 import excelIcon from "../images/excel-42-32.png";
 import filterIcon from "../images/filter-44-32.png";
 import CreateHandlerPlus from "./CreateHandlerPlus";
 import {StoreContext} from "../store/store";
 import {observer} from "mobx-react";
+import {CATEGORIES} from "../generated_constants";
 
 function SearchFilterBlock() {
     const store = useContext(StoreContext)

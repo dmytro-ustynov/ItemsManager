@@ -1,19 +1,14 @@
-export default function ItemCaption (props){
+import {SERVICES} from "../generated_constants";
+
+export default function ItemCaption(props) {
     const item = props.item
-    let bulletType = "bullet "
-    let bulletTitle
-    if (item.service_number === 1) {
-        bulletType += "service_vnlz"
-        bulletTitle = "ВНЛЗ"
-    } else if (item.service_number === 2) {
-        bulletType += "service_sz"
-        bulletTitle = "Служба зв'язку"
-    }  else {
-        bulletType += "default"
-    }
+    let bulletType = SERVICES[item.service_number] ? `service_${SERVICES[item.service_number].icon}` : "default"
+    let bulletTitle = SERVICES[item.service_number] ? SERVICES[item.service_number].name : ""
+
     return (
         <div className={"item-title"}>
-            <span className={bulletType} title={bulletTitle}>&#10687;	</span>	<span> {item.найменування}</span>
+            <span className={`bullet ${bulletType}`} title={bulletTitle}>&#10687;	</span>
+            <span>{item.найменування}</span>
         </div>
     )
 }

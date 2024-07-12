@@ -14,8 +14,6 @@
 }
 
 :root {
-    --color-vnlz: #0a58ca;
-    --color-sz: green;
     --color-main-background: white;
 }
 
@@ -87,16 +85,6 @@
     padding: 10px 0;
 }
 
-.info-vnlz {
-    color: var(--color-vnlz);
-    padding: 10px 0;
-}
-
-.info-sz {
-    color: var(--color-sz);
-    padding: 10px 0;
-}
-
 .item-title {
     min-height: 25px;
     text-align: start;
@@ -133,21 +121,12 @@
     padding: 0 10px;
 }
 
-.bullet.service_vnlz {
-    color: var(--color-vnlz);
-}
-
-.bullet.service_sz {
-    color: var(--color-sz);
-}
-
 .bullet.default {
     color: gray;
 }
 
 .table-item-info {
     border: 2px solid #70768f;
-    /*max-width: 40vmin;*/
 }
 
 table, th, td {

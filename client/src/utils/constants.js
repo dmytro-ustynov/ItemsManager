@@ -9,23 +9,11 @@ export const CREATE_ITEM_URL = "/items/create"
 export const ACCESS_TOKEN_KEY = "access_token"
 export const CURRENT_USER_KEY = "current_user"
 
-export const CATEGORIES = {
-    COMPUTERS: 'computers',
-    PROJECTORS: 'projectors',
-    COMMUNICATIONS: 'communications',
-    SEDO: 'СЕДО',
-    SOFT: 'software'
-}
-
 export const FIELDS = {
     NAME: "найменування",
     INVENTORY_NUMBER: "інвентарний номер",
     YEAR: "рік виготовлення",
     SERIAL: "заводський номер",
-}
-export const SERVICE_TO_NUMBER = {
-    "VNLZ": 1,
-    "SZ": 2
 }
 
 export const ALERT_LEVEL = {

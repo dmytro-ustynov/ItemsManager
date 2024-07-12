@@ -1,6 +1,7 @@
 import React, {createContext} from 'react';
 import {useLocalObservable} from "mobx-react";
-import {FIELDS, SERVICE_TO_NUMBER} from "../utils/constants";
+import {FIELDS} from "../utils/constants";
+import {SERVICE_TO_NUMBER} from "../generated_constants";
 
 export const StoreContext = createContext({});
 

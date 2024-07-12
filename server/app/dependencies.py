@@ -16,17 +16,16 @@ logger = logging.getLogger('server')
 
 MM = MongoManager()
 
+if not MM.connected:
+    logger.error('MongoManager not connected')
+
 with open(CONFIG_YAML, 'r') as yml:
     app_config = yaml.safe_load(yml)
 
-# class Service(str, Enum):
-#     SZ = "СЗ"
-#     VNLZ = "ВНЛЗ"
-
-SERVICES_ = app_config.get('services')
-#    {1: "СЗ", 2: "ВНЛЗ", ... }
-
-SERVICE_TO_NUMBER_MAPPER = {v: k for k, v in SERVICES_.items()}
+SERVICE_TO_NUMBER_MAPPER = dict()
+for i, s in enumerate(app_config.get('services')):
+    for key in s.keys():
+        SERVICE_TO_NUMBER_MAPPER[key] = i + 1
 #     {"СЗ": 1, ... }
 
 

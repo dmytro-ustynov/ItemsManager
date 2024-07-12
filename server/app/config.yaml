@@ -1,4 +1,15 @@
 # this file is intended for development
 services:
-  1 : "ВНЛЗ"
-  2 : "СЗ"
+  - "ВНЛЗ":
+      title: "ВНЛЗ"
+      color: "#0a58ca"
+  - "СЗ":
+      title: "Служба зв'язку"
+      color: "green"
+
+categories:
+  - 'computers'
+  - 'projectors'
+  - 'communications'
+  - 'СЕДО'
+  - 'software'

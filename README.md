@@ -35,9 +35,18 @@ openssl rand -base64 12
 # This will output smth like: WvWG/9DFiENuJStn 
 ```
 
-4. Build and run containers with the command:
+4. Fill the config.yaml with  services you want to have in your app. You may add new services, or delete existing ones. 
 
-`docker-compose up -d`
+6. Run the command:
+
+`python generate_static.py`
+
+This will add necessary files to the client part of the app.
+
+6. Build and run containers with the command:
+
+`docker-compose up -d --build`
+
 Wait for a while until containers are being built and started.
 After proces was finished you should see:
 ```
