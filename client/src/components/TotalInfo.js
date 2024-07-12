@@ -17,7 +17,6 @@ function TotalInfo() {
 
     useEffect(() => {
         let _counters = countServiceNumbers(items)
-        console.log(_counters)
         setCounters(_counters)
     }, [items, items.length]);
 

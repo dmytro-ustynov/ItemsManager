@@ -35,13 +35,19 @@ openssl rand -base64 12
 # This will output smth like: WvWG/9DFiENuJStn 
 ```
 
-4. Fill the config.yaml with  services you want to have in your app. You may add new services, or delete existing ones. 
+4. Fill the `config.yaml` with  services you want to have in your app. You may add new services, or delete existing ones. Adjust colors, for better representation in a list, use css names for colors, or hex  numbers like:
 
+   * <span style="color:wheat;"> ⦿ "wheat"</span>
+   * <span style="color:green;"> ⦿  "green"</span>
+   * <span style="color:#0a58ca;"> ⦿ "#0a58ca"</span>
+   * <span style="color:#90afea;"> ⦿ "#90afea"</span>
+    
+    
 6. Run the command:
 
 `python generate_static.py`
 
-This will add necessary files to the client part of the app.
+This will add necessary files to the client part of the app - 'generated.css' and 'generated_constants.js' files
 
 6. Build and run containers with the command:
 
@@ -57,6 +63,7 @@ Creating items-client ... done
 
 5. Ready to go! Visit http://localhost and you will see running application. But it has an empty list yet.
 
+
 6. Load items to DB. You may upload the collection to MongoDB Manually, or create admin user and load them from xls file.
 
 To upload manually - connect to your Database with the 3rd party tool like MongoDB Compass or Robo 3T with credentials you have specified in `.env` file and insert items to the collection "ITEMS".
@@ -70,6 +77,11 @@ Required fields are only :
 - Інвентарний номер
 - Служба
 
-Create xls file that will have such columns with these names, the first row on the sheet will be considered as property names, and starting from the row 2 all lines will be considered as items. Every line is the item to create and insert to DB with property that is written in the corresponding column. Once the empty first cell in a row was found - this will be considered as the end of the table
+Create `xls` file that will have such columns with these names, the first row on the sheet will be considered as property names, and starting from the row 2 all lines will be considered as items. Every line is the item to create and insert to DB with property that is written in the corresponding column. Once the empty first cell in a row was found - this will be considered as the end of the table
+
+The values in column `"Служба"` should be the same as you specified in the `config.yaml` file. This is required for good representation of the item list.
+
+Any other fields (columns) you may add on your demands.
 
 9. Use bulk upload to add all your items from xls to DB.
+![img2.png](images/img2.png)
