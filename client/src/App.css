@@ -161,6 +161,20 @@ td {
     height: 45px;
 }
 
+.help-text-paragraph {
+    text-align: justify;
+    text-indent: 40px;
+    margin: 0 25px 10px;
+}
+
+.active-lang {
+    font-weight: 700;
+}
+
+.inactive-lang {
+    font-weight: 300;
+}
+
 .Collapsible {
     /*.item-collapsible-block {*/
     border: 1px solid #61dafb;

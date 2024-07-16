@@ -150,7 +150,7 @@ export default function Login() {
                     <ListItemIcon><LibraryBooksIcon/> </ListItemIcon>
                     <ListItemText>Документи</ListItemText>
                 </MenuItem>
-                <MenuItem onClick={handleClose}>
+                <MenuItem onClick={() => window.location = "/help"}>
                     <ListItemIcon><HelpCenterIcon/> </ListItemIcon>
                     <ListItemText>Допомога</ListItemText>
                 </MenuItem>
