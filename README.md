@@ -86,7 +86,7 @@ Required fields are only :
 - Інвентарний номер
 - Служба
 
-Create `xls` file that will have such columns with these names, the first row on the sheet will be considered as property names, and starting from the row 2 all lines will be considered as items. Every line is the item to create and insert to DB with property that is written in the corresponding column. Once the empty first cell in a row was found - this will be considered as the end of the table
+Create `xls` file that will have such columns with these names, the first row on the sheet will be considered as property names, and starting from the row 2 all lines will be considered as items. Every line is the item to create and insert to DB with property that is written in the corresponding column. Empty cells are allowed except column **"Найменування"**. Once the empty first cell in a row was found - this will be considered as the end of the table.
 
 The values in column `"Служба"` should be the same as you specified in the `config.yaml` file. This is required for good representation of the item list.
 
