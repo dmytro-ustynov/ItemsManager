@@ -17,7 +17,7 @@ import filterIcon from "../images/filter-44-32.png";
 import CreateHandlerPlus from "./CreateHandlerPlus";
 import {StoreContext} from "../store/store";
 import {observer} from "mobx-react";
-import {defaultFilters, FILTERS, SERVICES} from "../generated_constants";
+import {auxFilters, defaultFilters, FILTERS, SERVICES} from "../generated_constants";
 
 function SearchFilterBlock() {
     const store = useContext(StoreContext)
@@ -121,18 +121,20 @@ function SearchFilterBlock() {
                 <DialogTitle>Налаштування фільтрів</DialogTitle>
                 <DialogContent>
                     <div style={{padding: "0 0 15px", display: "flex", gap: "1.5em"}}>
-                        <TextField variant="standard"
-                                   label="Новіше ніж: "
-                                   helperText="...року виготовлення"
-                                   value={youngerThanYear}
-                                   margin="dense"
-                                   onChange={handleYoungerInput}/>
-                        <TextField variant="standard"
-                                   label="Старіше ніж: "
-                                   helperText="...року виготовлення"
-                                   value={olderThanYear}
-                                   margin="dense"
-                                   onChange={handleOlderInput}/>
+                        {auxFilters.filterByYear && <>
+                            <TextField variant="standard"
+                                       label="Новіше ніж: "
+                                       helperText="...року виготовлення"
+                                       value={youngerThanYear}
+                                       margin="dense"
+                                       onChange={handleYoungerInput}/>
+                            <TextField variant="standard"
+                                       label="Старіше ніж: "
+                                       helperText="...року виготовлення"
+                                       value={olderThanYear}
+                                       margin="dense"
+                                       onChange={handleOlderInput}/>
+                        </>}
                     </div>
                     <FormControl variant="filled">
                         <FormLabel style={{fontWeight: 600}}>Фільтрувати за службою</FormLabel>
@@ -147,11 +149,11 @@ function SearchFilterBlock() {
                                     label={`Тільки ${SERVICES[key].name}`}
                                 />
                             ))}
-                            <FormControlLabel
+                            {auxFilters.filterNoService && <FormControlLabel
                                 control={<Radio checked={selectedService === "noService"}
                                                 onClick={handleServiceChange}/>}
                                 value="noService"
-                                label="Не на обліку"/>
+                                label="Не на обліку"/>}
                         </RadioGroup>
                         <FormLabel style={{fontWeight: 600}}>Фільтрувати за категоріями</FormLabel>
                         {Object.keys(FILTERS).map(key => (

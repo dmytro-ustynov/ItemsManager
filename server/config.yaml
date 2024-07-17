@@ -16,3 +16,7 @@ categories:
   "communications": "Комм. обладнання"
   "СЕДО": "Обладнання СЕДО"
   "software": "Програмне забезпечення"
+
+additionalFilters:
+  filterByYear: true
+  filterNoService: true
