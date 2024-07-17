@@ -27,7 +27,7 @@ function TotalInfo() {
             </div>
             {Object.keys(SERVICES).map((key) => {
                 return <div key={key}
-                            className={`info-${SERVICES[key].icon}`}>&#10687; - {SERVICES[key].name}: {pending ?
+                            className={`info-${SERVICES[key].alias}`}>&#10687; - {SERVICES[key].name}: {pending ?
                     <Loader/> : counters[key]}</div>
             })}
         </div>

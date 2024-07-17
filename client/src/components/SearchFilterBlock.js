@@ -17,7 +17,7 @@ import filterIcon from "../images/filter-44-32.png";
 import CreateHandlerPlus from "./CreateHandlerPlus";
 import {StoreContext} from "../store/store";
 import {observer} from "mobx-react";
-import {defaultFilters, FILTERS} from "../generated_constants";
+import {defaultFilters, FILTERS, SERVICES} from "../generated_constants";
 
 function SearchFilterBlock() {
     const store = useContext(StoreContext)
@@ -138,14 +138,15 @@ function SearchFilterBlock() {
                         <FormLabel style={{fontWeight: 600}}>Фільтрувати за службою</FormLabel>
                         <RadioGroup name="serviceRadioGroup"
                                     onChange={handleServiceChange}>
-                            <FormControlLabel
-                                control={<Radio checked={selectedService === "VNLZ"} onClick={handleServiceChange}/>}
-                                value="VNLZ"
-                                label={"Тільки ВНЛЗ"}/>
-                            <FormControlLabel
-                                control={<Radio checked={selectedService === "SZ"} onClick={handleServiceChange}/>}
-                                value="SZ"
-                                label="Тільки Служба зв'язку"/>
+                            {Object.keys(SERVICES).map(key => (
+                                <FormControlLabel
+                                    key={key}
+                                    control={<Radio/>}
+                                    value={SERVICES[key].alias.toUpperCase()}
+                                    checked={selectedService === SERVICES[key].alias.toUpperCase()}
+                                    label={`Тільки ${SERVICES[key].name}`}
+                                />
+                            ))}
                             <FormControlLabel
                                 control={<Radio checked={selectedService === "noService"}
                                                 onClick={handleServiceChange}/>}
