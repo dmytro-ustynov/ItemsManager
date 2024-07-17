@@ -17,7 +17,7 @@ import filterIcon from "../images/filter-44-32.png";
 import CreateHandlerPlus from "./CreateHandlerPlus";
 import {StoreContext} from "../store/store";
 import {observer} from "mobx-react";
-import {CATEGORIES} from "../generated_constants";
+import {defaultFilters, FILTERS} from "../generated_constants";
 
 function SearchFilterBlock() {
     const store = useContext(StoreContext)
@@ -28,11 +28,7 @@ function SearchFilterBlock() {
     const [olderThanYear, setOlderThanYear] = useState("")
     const [youngerThanYear, setYoungerThanYear] = useState("")
     const [selectedService, setSelectedService] = useState("")
-    const [computersChecker, setComputersChecker] = useState(false)
-    const [projectorsChecker, setProjectorsChecker] = useState(false)
-    const [communicationsChecker, setCommunicationsChecker] = useState(false)
-    const [sedoChecker, setSedoChecker] = useState(false)
-    const [softChecker, setSoftChecker] = useState(false)
+    const [filters, setFilters] = useState(defaultFilters)
 
     const handleInput = (event) => {
         const searchStr = event.target.value
@@ -66,10 +62,7 @@ function SearchFilterBlock() {
         setSelectedService("")
         setOlderThanYear("")
         setYoungerThanYear("")
-        setComputersChecker(false)
-        setCommunicationsChecker(false)
-        setProjectorsChecker(false)
-        setSedoChecker(false)
+        setFilters(defaultFilters);
         dropFilters()
         setFilterDialogOpen(false)
     }
@@ -85,13 +78,9 @@ function SearchFilterBlock() {
             }
         }
 
-        let category = [];
-        if (computersChecker) category.push(CATEGORIES.COMPUTERS);
-        if (projectorsChecker) category.push(CATEGORIES.PROJECTORS);
-        if (communicationsChecker) category.push(CATEGORIES.COMMUNICATIONS);
-        if (sedoChecker) category.push(CATEGORIES.SEDO);
-        if (softChecker) category.push(CATEGORIES.SOFT);
-
+        const category = Object.keys(filters)
+            .filter(key => filters[key])
+            .map(key => FILTERS[key].value);
         if (category.length > 0) filter.category = category;
         if (Object.entries(filter).length > 0) {
             if (searchString !== "") {
@@ -110,29 +99,12 @@ function SearchFilterBlock() {
         }
     }
     const handleCategoryChange = (event) => {
-        const category = event.target.value
-        switch (category) {
-            case CATEGORIES.COMPUTERS:
-                setComputersChecker(!computersChecker);
-                break
-            case CATEGORIES.PROJECTORS:
-                setProjectorsChecker(!projectorsChecker);
-                break
-            case CATEGORIES.COMMUNICATIONS:
-                setCommunicationsChecker(!communicationsChecker)
-                break
-            case CATEGORIES.SEDO:
-                setSedoChecker(!sedoChecker)
-                break
-            case CATEGORIES.SOFT:
-                setSoftChecker(!softChecker)
-                break
-            default:
-                setComputersChecker(false);
-                setProjectorsChecker(false);
-                setCommunicationsChecker(false);
-        }
-    }
+        const {name, checked} = event.target;
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [name]: checked
+        }));
+    };
     const handleOlderInput = (event) => {
         setOlderThanYear(event.target.value)
     }
@@ -140,8 +112,8 @@ function SearchFilterBlock() {
         setYoungerThanYear(event.target.value)
     }
     const validateFilters = () => {
-        return !(youngerThanYear || olderThanYear || selectedService || computersChecker || projectorsChecker
-            || sedoChecker || softChecker || communicationsChecker);
+        const filterSelected = Object.values(filters).some(v => v === true)
+        return !(youngerThanYear || olderThanYear || selectedService || filterSelected)
     }
     return (
         <div className={"search-handlers"}>
@@ -181,26 +153,19 @@ function SearchFilterBlock() {
                                 label="Не на обліку"/>
                         </RadioGroup>
                         <FormLabel style={{fontWeight: 600}}>Фільтрувати за категоріями</FormLabel>
-                        <FormControlLabel
-                            control={<Checkbox checked={computersChecker} onChange={handleCategoryChange}/>}
-                            value={CATEGORIES.COMPUTERS}
-                            label="Комп'ютери"/>
-                        <FormControlLabel
-                            control={<Checkbox checked={projectorsChecker} onChange={handleCategoryChange}/>}
-                            value={CATEGORIES.PROJECTORS}
-                            label="Проектори"/>
-                        <FormControlLabel
-                            control={<Checkbox checked={communicationsChecker} onChange={handleCategoryChange}/>}
-                            value={CATEGORIES.COMMUNICATIONS}
-                            label="Комм. обладнання"/>
-                        <FormControlLabel
-                            control={<Checkbox checked={sedoChecker} onChange={handleCategoryChange}/>}
-                            value={CATEGORIES.SEDO}
-                            label="Обладнання СЕДО"/>
-                        <FormControlLabel
-                            control={<Checkbox checked={softChecker} onChange={handleCategoryChange}/>}
-                            value={CATEGORIES.SOFT}
-                            label="Програмне забезпечення"/>
+                        {Object.keys(FILTERS).map(key => (
+                            <FormControlLabel
+                                key={key}
+                                control={
+                                    <Checkbox
+                                        checked={filters[key]}
+                                        onChange={handleCategoryChange}
+                                        name={key}
+                                    />
+                                }
+                                label={FILTERS[key].title}
+                            />
+                        ))}
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
