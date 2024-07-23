@@ -1,12 +1,9 @@
+import jwt
 from fastapi import APIRouter, Response, Request, Depends
 
-from .jwt_bearer import JWTBearer
-from .jwt_handler import sign_jwt
-from .jwt_handler import decode_jwt
-from .user import User
-from .user import UserSchema
-from .user import UserLoginSchema
-from ..dependencies import MM, logger
+from .jwt_handler import sign_jwt, decode_jwt
+from .user import User, UserSchema, UserLoginSchema
+from ..dependencies import MM, logger, get_root_user
 
 router = APIRouter(prefix='',
                    tags=['user'])
@@ -19,7 +16,10 @@ def user_signup(user: UserSchema):
                 'details': 'email already registered'}
     mongo_user = User.create_user_dict(user)
     if MM.query(User).create(mongo_user):
-        res = sign_jwt(mongo_user['user_id'])
+        user = dict(username=mongo_user['username'],
+                    user_id=mongo_user['user_id'],
+                    is_active=mongo_user['is_active'])
+        res = sign_jwt(user)
         res['result'] = True
         return res
     else:
@@ -36,38 +36,47 @@ def user_login(login: UserLoginSchema, response: Response):
     user = {
         'username': mongo_user.username,
         'user_id': mongo_user.user_id,
+        'is_active': mongo_user.is_active,
         'role': 'registered'  # required field to handle frontEnd logic
     }
-    result = {**sign_jwt(mongo_user.user_id),
-              **sign_jwt(mongo_user.user_id, seconds=3000, token_key='refresh_token'),
+    r_token = sign_jwt(user, seconds=7200, token_key='refresh_token')
+    result = {**sign_jwt(user),
+              **r_token,
               'result': True,
               'user': user}  # dict
-    response.set_cookie(key='refresh_token', value=result.get('refresh_token', ''))
+    response.set_cookie(key='refresh_token', value=r_token, httponly=True, samesite='none')
     return result
 
 
-@router.post('/auth/refresh_token')
+@router.get('/auth/refresh_token')
 def refresh_token(request: Request, response: Response):
     """
     Endpoint to silently refresh tokens
     :param request:
-    :param response:Mi
+    :param response:
     :return:
     """
     token = request.cookies.get('refresh_token')
     if not token:
+        return {'result': False, 'details': 'No refresh token found'}
+    try:
+        payload = decode_jwt(token)
+    except jwt.exceptions.ExpiredSignatureError:
+        return {'result': False, 'details': 'Refresh token is expired'}
+    if not payload:
         return {'result': False}
-    decoded = decode_jwt(token)
-    if decoded is None:
-        return {'result': False}
-    user_id = decoded.get('user_id')
+    user_id = payload.get('user_id')
     mongo_user = MM.query(User).get(user_id=user_id)
     if not mongo_user:
         return {'result': False}
-    result = {**sign_jwt(mongo_user.user_id),
-              **sign_jwt(mongo_user.user_id, seconds=3000, token_key='refresh_token'),
+    user = dict(username=mongo_user.username,
+                user_id=mongo_user.user_id,
+                is_active=mongo_user.is_active)
+    r_token = sign_jwt(user, seconds=7200, token_key='refresh_token')
+    result = {**sign_jwt(user),
+              **r_token,
               'result': True}  # dict
-    response.set_cookie(key='refresh_token', value=result.get('refresh_token', ''))
+    response.set_cookie(key='refresh_token', value=r_token, httponly=True, samesite='none')
     return result
 
 
@@ -78,11 +87,16 @@ async def logout(response: Response):
     return {"msg": "logout OK"}
 
 
-@router.post("/user/approve_user/", dependencies=[Depends(JWTBearer(auto_error=False))])
-async def approve_user(user_id: str, token: str, response: Response):
-    root_user = MM.query(User).get(username='root')
-    if not root_user.check_password(token):
-        return {'result': False, 'details': 'can not validate root credentials'}
+@router.get("/user/unactivated_users/", dependencies=[Depends(get_root_user)],
+            summary="Get the list of unactivated users, only for root user")
+async def get_unactivated_users():
+    unactivated_users = MM.query(User).get(is_active=False)
+    return {"users": unactivated_users}
+
+
+@router.post("/user/approve_user/", dependencies=[Depends(get_root_user)],
+             summary="Approve user by id, only for root user")
+async def approve_user(user_id: str):
     try:
         mongo_user = MM.query(User).get(user_id=user_id)
         if not mongo_user:

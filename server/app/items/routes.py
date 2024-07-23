@@ -2,22 +2,20 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import FileResponse
 
-from server.app.auth.jwt_bearer import JWTBearer
-from server.app.auth.user import User
 from server.app.auth.utils import get_request_id
 from server.app.dal.mongo_manager import MongoManagerConnectionError
 from server.app.dal.query_builder import QueryBuilder
-from server.app.dependencies import MM, do_pagination, logger, get_filters_from_request
+from server.app.dependencies import MM, do_pagination, logger, get_filters_from_request, get_active_user, get_root_user
 from server.app.file_manager.file_manager import FileManager, FileExtension
 from server.app.items.item import Item, FieldNames
 from server.app.items.schemas import NoteRequest, ItemsRequest, UpdateItemRequest, CreateItemRequest
 
 router = APIRouter(prefix='/items',
-                   tags=['ITEMS'],
-                   dependencies=[Depends(JWTBearer(auto_error=False))])
+                   tags=['ITEMS'])
 
 
-@router.get("/", summary="Get all items from db")
+@router.get("/", dependencies=[Depends(get_active_user)],
+            summary="Get all items from db", )
 async def get_items(search_string: str = None, skip: int = None, limit: int = None,
                     request_id: str = Depends(get_request_id)):
     filters = {}
@@ -45,7 +43,7 @@ async def get_items(search_string: str = None, skip: int = None, limit: int = No
         return {"result": False}
 
 
-@router.get("/item/{inv_number}")
+@router.get("/item/{inv_number}", dependencies=[Depends(get_active_user)])
 async def get_single_item(inv_number: str):
     item = MM.query(Item).get(**{FieldNames.inventory_number: inv_number})
     if item:
@@ -53,8 +51,8 @@ async def get_single_item(inv_number: str):
     raise HTTPException(status_code=404, detail=f'Item with inventory number {inv_number} not found')
 
 
-@router.post("/", )
-def filter_items(filters: dict = Depends(get_filters_from_request)):
+@router.post("/", dependencies=[Depends(get_active_user)])
+def filter_items(filters: dict = Depends(get_filters_from_request), ):
     search_string = filters.get('search_string')
     older_than = filters.get('older_than')
     younger_than = filters.get('younger_than')
@@ -80,7 +78,8 @@ def filter_items(filters: dict = Depends(get_filters_from_request)):
         raise HTTPException(status_code=432, detail=str(e))
 
 
-@router.post("/save_note", summary="Add a note for the item with selected ID")
+@router.post("/save_note", dependencies=[Depends(get_active_user)],
+             summary="Add a note for the item with selected ID", )
 async def save_note(note_request: NoteRequest):
     object_id = note_request.object_id
     note = note_request.note
@@ -95,7 +94,8 @@ async def save_note(note_request: NoteRequest):
     return {"result": False, "details": "not found"}
 
 
-@router.post("/export", summary="Export selected IDS to csv/xls")
+@router.post("/export", dependencies=[Depends(get_active_user)],
+             summary="Export selected IDS to csv/xls")
 async def export(ids_request: ItemsRequest):
     ids_list = ids_request.item_ids
     ids = [ObjectId(i) for i in ids_list]
@@ -118,7 +118,8 @@ async def export(ids_request: ItemsRequest):
         return {"result": False, "details": str(e)}
 
 
-@router.post("/update", summary="Add fields to existing item")
+@router.post("/update", dependencies=[Depends(get_active_user)],
+             summary="Add fields to existing item")
 async def update_item(update_request: UpdateItemRequest):
     item_id = update_request.item_id
     item = MM.query(Item).get(_id=ObjectId(item_id))
@@ -140,7 +141,8 @@ async def update_item(update_request: UpdateItemRequest):
     return {"result": True, "item": updated_item}
 
 
-@router.post("/create", summary="Create new item")
+@router.post("/create", dependencies=[Depends(get_active_user)],
+             summary="Create new item")
 async def create_new_item(item: CreateItemRequest):
     new_item = MM.query(Item).create(item.to_dict())
     if new_item:
@@ -151,14 +153,12 @@ async def create_new_item(item: CreateItemRequest):
         return {"result": False, "details": "Error creating new item "}
 
 
-@router.delete("/{item_id}", summary="delete element by its id from database, use root token to delete")
-async def delete_item(item_id: str, token: str):
-    root_user = MM.query(User).get(username='root')
-    if not root_user or not root_user.check_password(token):
-        return {'result': False, 'details': 'can not validate root credentials'}
+@router.delete("/{item_id}", dependencies=[Depends(get_root_user)],
+               summary="Delete element by its ID from database, only for the root user")
+async def delete_item(item_id: str):
     try:
         result = MM.query(Item).delete(_id=ObjectId(item_id))
-        return {'deleted_count': result.deleted_count}
+        return {"result": True, 'deleted_count': result.deleted_count}
     except Exception as e:
         logger.error(str(e))
         raise HTTPException(status_code=432)

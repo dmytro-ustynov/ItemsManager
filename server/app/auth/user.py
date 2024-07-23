@@ -1,6 +1,5 @@
 import bcrypt
 import uuid
-import json
 from pydantic import BaseModel, Field
 
 
@@ -18,9 +17,7 @@ class UserSchema(BaseModel):
         }
 
 
-class UserLoginSchema(BaseModel):
-    username: str = Field(default=None)
-    password: str = Field(default=None)
+class UserLoginSchema(UserSchema):
 
     class Config:
         json_schema_extra = {

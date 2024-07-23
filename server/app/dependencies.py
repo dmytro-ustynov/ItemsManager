@@ -2,6 +2,9 @@ import logging
 import os
 import yaml
 from logging.config import dictConfig
+from fastapi import Depends, HTTPException
+
+from server.app.auth.jwt_bearer import JWTBearerWithPayload
 from server.app.dal.mongo_manager import MongoManager
 
 LOG_YAML = os.path.join(os.getcwd(), 'logger_config.yaml')
@@ -29,8 +32,22 @@ for i, s in enumerate(app_config.get('services')):
 #     {"СЗ": 1, ... }
 
 
-def get_item_list_from_request(body: dict):
-    return body.get("item_ids", [])
+async def get_current_user(payload: dict = Depends(JWTBearerWithPayload(auto_error=False))):
+    if 'username' not in payload or 'is_active' not in payload:
+        raise HTTPException(status_code=403, detail='Invalid token payload')
+    return payload
+
+
+async def get_active_user(current_user: dict = Depends(get_current_user)):
+    if not current_user['is_active']:
+        raise HTTPException(status_code=403, detail='User is not active')
+    return current_user
+
+
+async def get_root_user(current_user: dict = Depends(get_current_user)):
+    if current_user['username'] != 'root':
+        raise HTTPException(status_code=403, detail='For root user only ')
+    return current_user
 
 
 def get_filters_from_request(body: dict):

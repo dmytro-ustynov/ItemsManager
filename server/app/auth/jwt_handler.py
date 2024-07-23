@@ -1,4 +1,4 @@
-import time
+from time import time
 import jwt
 from decouple import config
 
@@ -18,10 +18,16 @@ def token_response(token: str, token_key: str = "access_token"):
     }
 
 
-def sign_jwt(user_id: str, seconds: int = 600,  token_key: str = "access_token"):
+def sign_jwt(user: dict, seconds: int = 600,  token_key: str = "access_token"):
+    exp = time() + seconds
+    # if token_key == 'refresh_token':
+    #     print(f' ==== REFRESH set to: {exp}')
     payload = {
-        "user_id": user_id,
-        "expiry": time.time() + seconds
+        "user_id": user.get('user_id'),
+        "username": user.get('username', 'anonymous'),
+        "is_active": user.get('is_active', False),
+        "role": user.get('role', 'registered'),
+        "expiry": exp
     }
     token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
     return token_response(token, token_key)
@@ -30,8 +36,8 @@ def sign_jwt(user_id: str, seconds: int = 600,  token_key: str = "access_token")
 def decode_jwt(token: str):
     try:
         decoded = jwt.decode(token, JWT_SECRET, JWT_ALGORITHM)
-        return decoded if decoded["expiry"] >= time.time() else {}
-    except jwt.exceptions.ExpiredSignatureError:
+    except Exception:
         return {}
-    except Exception as e:
-        return {}
+    if decoded["expiry"] < time():
+        raise jwt.exceptions.ExpiredSignatureError
+    return decoded

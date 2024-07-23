@@ -1,3 +1,4 @@
+import jwt
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from .jwt_handler import decode_jwt
@@ -16,9 +17,14 @@ class JWTBearer(HTTPBearer):
         else:
             raise HTTPException(status_code=403, detail='Invalid or expired token')
 
-    @staticmethod
-    def verify_jwt(token: str):
-        payload = decode_jwt(token)
-        if payload:
-            return True
-        return False
+
+class JWTBearerWithPayload(JWTBearer):
+    async def __call__(self, request: Request):
+        token: HTTPAuthorizationCredentials = await super().__call__(request)
+        # token = credentials.credentials
+        try:
+            payload = decode_jwt(str(token))
+        except jwt.exceptions.ExpiredSignatureError:
+            # print('expired token...')
+            raise HTTPException(status_code=401, detail="Expired token provided")
+        return payload
