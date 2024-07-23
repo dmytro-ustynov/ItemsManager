@@ -18,7 +18,6 @@ class UserSchema(BaseModel):
 
 
 class UserLoginSchema(UserSchema):
-
     class Config:
         json_schema_extra = {
             'example': {
@@ -26,6 +25,12 @@ class UserLoginSchema(UserSchema):
                 'password': '12345',
             }
         }
+
+
+class ChangePasswordSchema(BaseModel):
+    old_password: str = Field(default=None)
+    new_password: str = Field(..., min_length=5)
+    confirm_password: str = Field(..., min_length=5)
 
 
 # Mongo models
@@ -68,17 +73,15 @@ class User:
     def create_user_dict(cls, user: UserSchema):
         password = cls.create_password(user.password)
         uid = str(uuid.uuid4())
+        is_active = True if user.username in ('admin', 'root') else False
         return dict(user_id=uid,
                     username=user.username,
                     password=password,
-                    is_active=True
-                    )
+                    is_active=is_active)
 
-    # def toJSON(self):
-    #     """
-    #     :return: json object for the user entity
-    #     """
-    #     return json.dumps({
-    #         'user_id': self.user_id,
-    #         'username': self.username,
-    #     })
+    def to_dict(self):
+        return dict(username=self.username,
+                    user_id=str(self.user_id),
+                    is_active=self.is_active,
+                    created_at=self.created_at,
+                    updated_at=self.updated_at)

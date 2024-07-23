@@ -1,12 +1,9 @@
 # from bson import ObjectId
 import aiofiles
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from fastapi import UploadFile
-
-from server.app.auth.jwt_bearer import JWTBearer
-from server.app.auth.user import User
-from server.app.dependencies import logger, MM
-from server.app.file_manager.file_manager import FileManager, FileExtension
+from server.app.dependencies import logger, MM, get_active_user, get_root_user
+from server.app.file_manager.file_manager import FileManager
 from server.app.items.item import FieldNames,  Item
 
 router = APIRouter(prefix='/files',
@@ -29,7 +26,7 @@ async def validate_xls(file: UploadFile):
         return False
 
 
-@router.post('/bulk_upload')
+@router.post('/bulk_upload', dependencies=[Depends(get_active_user)])
 async def validate_xls(file: UploadFile):
     if file.content_type not in FileManager.XLS_CONTENT_TYPES:
         return {'result': False, 'details': f'file not accepted: {file.content_type}'}
@@ -55,11 +52,8 @@ async def validate_xls(file: UploadFile):
 
 @router.put('/clear_yesterday_files',
             summary="delete xls files from data folder",
-            dependencies=[Depends(JWTBearer(auto_error=False))])
-async def clear_yesterday_files(token: str):
-    root_user = MM.query(User).get(username='root')
-    if not root_user or not root_user.check_password(token):
-        return {'result': False, 'details': 'can not validate root credentials'}
+            dependencies=[Depends(get_root_user)])
+async def clear_yesterday_files():
     try:
         result, count = FileManager.clear_data_folder()
         if result:
