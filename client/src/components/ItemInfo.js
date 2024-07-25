@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import {fetcher} from "../utils/fetch_utils";
-import {ADD_FIELD_URL, ALERT_LEVEL, BASE_URL, SAVE_NOTE_URL} from "../utils/constants";
+import {ADD_FIELD_URL, ALERT_LEVEL, BASE_URL, FIELDS, SAVE_NOTE_URL} from "../utils/constants";
 import {Button, Table, TableBody, TableCell, TableRow, TextField, Typography} from "@mui/material";
 import {useAuthState} from "./auth/context";
 import Fab from "@mui/material/Fab";
@@ -9,9 +10,11 @@ import SaveIcon from "@mui/icons-material/Save";
 import {StoreContext} from "../store/store";
 import {observer} from "mobx-react";
 import MenuItem from "@mui/material/MenuItem";
+import RootItemActions from "./RootItemActions";
 
 function ItemInfo(props) {
     let item = props.item
+    let mode = props.mode || 'list'
     const [attributes, setAttributes] = useState([])
     const [noteText, setNoteText] = useState('')
     const [saveClicked, setSaveClicked] = useState(false)
@@ -28,6 +31,7 @@ function ItemInfo(props) {
 
     const store = useContext(StoreContext)
     const {setMessage, setAlertLevel, clearMessage, addItemField, fields} = store
+    const navigate = useNavigate();
 
     useEffect(() => {
         let attrs = []
@@ -37,6 +41,7 @@ function ItemInfo(props) {
         setAttributes(attrs)
         setNoteText(item.notes)
     }, [item])
+    // console.log(store.items.length)
 
     useEffect(() => {
         // we get options for New Field name from backend
@@ -51,7 +56,7 @@ function ItemInfo(props) {
         setSaveClicked(true)
         setPendingRequest(true)
 
-        const url = BASE_URL + SAVE_NOTE_URL // + `?object_id=${item._id}&note=${noteText}`
+        const url = BASE_URL + SAVE_NOTE_URL
         const payload = {object_id: item._id, note: noteText}
         const data = await fetcher({payload, url, method: "POST", credentials: true})
         setPendingRequest(false)
@@ -74,7 +79,6 @@ function ItemInfo(props) {
             setAttributes([...attributes, [newFieldName, newFieldValue]])
             setMessage('Новий атрибут збережено')
             setAlertLevel(ALERT_LEVEL.INFO)
-
         } else {
             console.log(result)
             setAlertLevel(ALERT_LEVEL.WARNING)
@@ -104,6 +108,7 @@ function ItemInfo(props) {
         return !newFieldName || !newFieldValue || Object.keys(item).includes(newFieldName)
     }
 
+    const forbiddenKeys = [FIELDS.NAME, "_id", "updated_at", "service_number", "notes", "inventory"]
 
     return (
         <div className={"item-info"}>
@@ -111,7 +116,6 @@ function ItemInfo(props) {
                 <Table className={"table-item-info"} size="small">
                     <TableBody>
                         {attributes.map(([key, value], number) => {
-                            let forbiddenKeys = ["_id", "updated_at", "service_number", "найменування", "notes", "inventory"]
                             return (
                                 !forbiddenKeys.includes(key) &&
                                 (<TableRow key={`${key}-${number}`}>
@@ -122,6 +126,7 @@ function ItemInfo(props) {
                         })}
                     </TableBody>
                 </Table>
+                {user.username === 'root' && <RootItemActions item={item}/>}
             </div>
             <div style={{flex: 1, margin: "5px"}}>
                 {((noteText && noteText.length > 0) || user.role !== 'anonymous') && (
@@ -165,7 +170,6 @@ function ItemInfo(props) {
                                                 <MenuItem key={option.value} value={option.value}>
                                                     {option.label}
                                                 </MenuItem>))}
-
                                         </TextField>
 
                                         <TextField color="info"
@@ -199,6 +203,9 @@ function ItemInfo(props) {
                         </div>
                     </div>
                 )
+                }
+                {mode === 'list' ? <Link to={`/item/?item_id=${item._id}`}>докладніше ...</Link> :
+                    <Link to={"/"}>назад</Link>
                 }
             </div>
         </div>

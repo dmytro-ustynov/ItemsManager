@@ -1,23 +1,31 @@
 import Header from "../components/Header";
 import ItemList from "../components/ItemList";
 import Footer from "../components/Footer";
-import React from "react";
+import React, {useContext, useEffect} from "react";
 import {observer} from "mobx-react";
 import SearchFilterBlock from "../components/SearchFilterBlock";
 import TotalInfo from "../components/TotalInfo";
-import {StoreProvider} from "../store/store";
+import {StoreContext} from "../store/store";
 import MessageHandler from "../components/MessageHandler";
 
 function HomePage() {
+    // const store = useContext(StoreContext)
+    //
+    // useEffect(() => {
+    //     if (store.items.length === 0) {
+    //         store.fetchItems();
+    //     }
+    // }, [store]);
+
     return (
-        <StoreProvider>
+        <>
             <Header/>
             <SearchFilterBlock/>
             <TotalInfo/>
             <ItemList/>
-            <MessageHandler />
+            <MessageHandler/>
             <Footer/>
-        </StoreProvider>
+        </>
     );
 }
 

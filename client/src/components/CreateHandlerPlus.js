@@ -53,7 +53,7 @@ export default function CreateHandlerPlus() {
     }
 
     const validateCreationForm = () => {
-        return !name || !inventoryNumber || !service
+        return !name || !inventoryNumber || !service || name.length < 5 || inventoryNumber.length < 5
     }
 
     const handleServiceChange = (event) => {
@@ -83,10 +83,12 @@ export default function CreateHandlerPlus() {
     return <div>
         <Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)}>
             <DialogTitle
-                sx={{fontWeight: 600,
-                display: 'flex',
-                justifyContent: 'center'}}>Створення елементу</DialogTitle>
-            <DialogContent sx={{display: "flex", flexDirection: "column", width: "50vh", maxWidth:"100%"}}>
+                sx={{
+                    fontWeight: 600,
+                    display: 'flex',
+                    justifyContent: 'center'
+                }}>Створення елементу</DialogTitle>
+            <DialogContent sx={{display: "flex", flexDirection: "column", width: "50vh", maxWidth: "100%"}}>
                 <TextField label="Найменування" variant="outlined"
                            margin="dense"
                            helperText="Має бути довше ніж 5 символів"
@@ -138,7 +140,8 @@ export default function CreateHandlerPlus() {
 
         </Dialog>
         {
-            user.role === 'registered' && <Fab color="primary" title="Створити новий елемент"
+            user.role === 'registered' && <Fab disabled={user.is_active !== true}
+                                               color="primary" title="Створити новий елемент"
                                                aria-label="add" onClick={() => {
                 setCreateDialogOpen(true)
             }}>

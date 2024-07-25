@@ -1,16 +1,11 @@
 import React, {useContext, useEffect, useState} from "react";
 import {countServiceNumbers} from "../utils/counters";
 import {StoreContext} from "../store/store";
-import refreshGif from "../images/icons8-refresh.gif"
 import {observer} from "mobx-react";
 import {SERVICES} from "../generated_constants";
-
-function Loader() {
-    return <img src={refreshGif} alt=".." style={{height: '20px'}}/>
-}
+import Loader from "./loader";
 
 function TotalInfo() {
-
     const store = useContext(StoreContext)
     const {items, pending} = store
     const [counters, setCounters] = useState({})
