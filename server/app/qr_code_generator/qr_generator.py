@@ -7,7 +7,7 @@ class QRCodeGenerator:
         self.url = url
         self.logo = logo
         self.QRcolor = 'Green'
-        self.back_color="white"
+        self.back_color = "white"
         self.ready = False
         self.img = None
         self.generate()
@@ -18,10 +18,10 @@ class QRCodeGenerator:
             # in the QR code center
             # Logo_link = 'g4g.jpg'
             logo = Image.open(self.logo)
-            basewidth = 100
+            basewidth = 150
             wpercent = (basewidth / float(logo.size[0]))
             hsize = int((float(logo.size[1]) * float(wpercent)))
-            logo = logo.resize((basewidth, hsize), Image.ANTIALIAS)
+            logo = logo.resize((basewidth, hsize), Image.Resampling.LANCZOS)
 
         QRcode = qrcode.QRCode(
             error_correction=qrcode.constants.ERROR_CORRECT_H
@@ -37,10 +37,6 @@ class QRCodeGenerator:
             pos = ((QRimg.size[0] - logo.size[0]) // 2,
                    (QRimg.size[1] - logo.size[1]) // 2)
             QRimg.paste(logo, pos)
-
-        # save the QR code generated
-        QRimg.save('gfg_QR.png')
-        # print('QR code generated!')
         self.ready = True
         self.img = QRimg
 

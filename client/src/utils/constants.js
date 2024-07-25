@@ -6,7 +6,9 @@ export const SAVE_NOTE_URL = "/items/save_note"
 export const EXPORT_URL = "/items/export"
 export const ADD_FIELD_URL = "/items/update"
 export const CREATE_ITEM_URL = "/items/create"
+export const QRCODE_URL = BASE_URL + '/items/qr_code'
 export const ACCESS_TOKEN_KEY = "access_token"
+export const REFRESH_TOKEN_URl = "/auth/refresh_token"
 export const CURRENT_USER_KEY = "current_user"
 
 export const FIELDS = {

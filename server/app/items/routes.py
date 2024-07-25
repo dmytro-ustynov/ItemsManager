@@ -6,6 +6,7 @@ from server.app.auth.utils import get_request_id
 from server.app.dal.mongo_manager import MongoManagerConnectionError
 from server.app.dal.query_builder import QueryBuilder
 from server.app.dependencies import MM, do_pagination, logger, get_filters_from_request, get_active_user, get_root_user
+from server.app.dependencies import get_qr_image_path
 from server.app.file_manager.file_manager import FileManager, FileExtension
 from server.app.items.item import Item, FieldNames
 from server.app.items.schemas import NoteRequest, ItemsRequest, UpdateItemRequest, CreateItemRequest
@@ -41,6 +42,25 @@ async def get_items(search_string: str = None, skip: int = None, limit: int = No
     except Exception as e:
         logger.error(f'REQUEST_ID: {request_id} - {str(e)}')
         return {"result": False}
+
+
+@router.get("/{item_id}", dependencies=[Depends(get_active_user)],
+            summary="Get item by its id")
+async def get_single_item(item_id: str):
+    try:
+        item = MM.query(Item).get(_id=ObjectId(item_id))
+        return {"result": True, "item": item.to_dict()}
+    except Exception as e:
+        logger.error(str(e))
+        return {"result": False}
+
+
+@router.get("/qr_code/{item_id}")
+async def generate_qr_code(item_id: str):
+    path = get_qr_image_path(item_id)
+    if path is not None:
+        return FileResponse(path)
+    return None
 
 
 @router.get("/item/{inv_number}", dependencies=[Depends(get_active_user)])

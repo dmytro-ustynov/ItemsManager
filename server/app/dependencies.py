@@ -1,11 +1,13 @@
 import logging
 import os
 import yaml
+from decouple import config
 from logging.config import dictConfig
 from fastapi import Depends, HTTPException
 
 from server.app.auth.jwt_bearer import JWTBearerWithPayload
 from server.app.dal.mongo_manager import MongoManager
+from server.app.qr_code_generator.qr_generator import QRCodeGenerator
 
 LOG_YAML = os.path.join(os.getcwd(), 'logger_config.yaml')
 
@@ -69,3 +71,22 @@ def do_pagination(result: dict, skip: int, limit: int, total_count: int):
                             'total': total_count,
                             'has_next_step': total_count > skip + limit,
                             'has_previous_step': skip > 0}
+
+
+def get_item_link(item_id):
+    return f'http://{config("CLIENT_HOST")}/item?item_id={item_id}'
+
+
+def get_qr_image_path(item_id):
+    path = os.path.join('data', 'qr', f'{item_id}.png')
+    if os.path.isfile(path):
+        return path
+    try:
+        link = get_item_link(item_id)
+        qr = QRCodeGenerator(link, logo='logo_2.jpg')
+        img = qr.get_image()
+        img.save(path)
+        return path
+    except Exception as e:
+        logger.error(str(e))
+        return None
