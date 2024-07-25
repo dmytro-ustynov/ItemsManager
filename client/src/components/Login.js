@@ -21,7 +21,7 @@ import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import {useContext, useState} from "react";
-import {useAuthDispatch, useAuthState} from "./auth/context";
+import {Roles, useAuthDispatch, useAuthState} from "./auth/context";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {ACCESS_TOKEN_KEY, ALERT_LEVEL, BASE_URL, CURRENT_USER_KEY} from "../utils/constants";
 import {fetcher} from "../utils/fetch_utils"
@@ -70,7 +70,7 @@ export default function Login({isOpen = false}) {
         setAnchorEl(null);
         setOpenLoginForm(true)
     }
-    const userTitle = user.role === 'anonymous' ? "Anonymous user, click Login" : user.username
+    const userTitle = user.role === Roles.ANONYMOUS ? "Anonymous user, click Login" : user.username
     // form logic
     const handleCloseLoginForm = () => {
         setOpenLoginForm(false);
@@ -102,10 +102,7 @@ export default function Login({isOpen = false}) {
             dispatch({type: authTypes.LOGIN_SUCCESS, payload: data});
             localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token);
             localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(data.user));
-
-            setTimeout(() => {
-                handleCloseLoginForm()
-            }, 1000)
+            handleCloseLoginForm()
             console.log(`user logged in`)
             const redirectTo = sessionStorage.getItem('redirectTo') || '/';
             navigate(redirectTo);
@@ -145,13 +142,13 @@ export default function Login({isOpen = false}) {
                   MenuListProps={{
                       'aria-labelledby': 'basic-button',
                   }}>
-                {user.role === 'anonymous' &&
+                {user.role === Roles.ANONYMOUS &&
                     <MenuItem onClick={handleClickLoginMenu}>
                         <ListItemIcon><LoginIcon/> </ListItemIcon>
                         <ListItemText>Login</ListItemText>
                     </MenuItem>}
-                <MenuItem onClick={handleClose} disabled={user.role === 'anonymous'}>
-                    {user.role === 'anonymous' ? (<><ListItemIcon><ManageAccountsIcon/> </ListItemIcon>
+                <MenuItem onClick={handleClose} disabled={user.role === Roles.ANONYMOUS}>
+                    {user.role === Roles.ANONYMOUS ? (<><ListItemIcon><ManageAccountsIcon/> </ListItemIcon>
                             <ListItemText>My account</ListItemText></>) :
                         <><ListItemIcon>{user.is_active === true ? <ManageAccountsIcon/> :
                             <ReportProblemOutlinedIcon title={"Необхідно активувати акаунт"}/>}
@@ -159,7 +156,7 @@ export default function Login({isOpen = false}) {
                             <ListItemText>{user.username}</ListItemText></>
                     }
                 </MenuItem>
-                {user.role !== 'anonymous' &&
+                {user.role !== Roles.ANONYMOUS &&
                     <MenuItem disabled={user.is_active !== true}
                               onClick={() => {
                                   setOpenUploadDialog(true);
@@ -176,8 +173,8 @@ export default function Login({isOpen = false}) {
                     <ListItemIcon><HelpCenterIcon/> </ListItemIcon>
                     <ListItemText>Допомога</ListItemText>
                 </MenuItem>
-                {user.role !== 'anonymous' && <Divider/>}
-                {user.role !== 'anonymous' &&
+                {user.role !== Roles.ANONYMOUS && <Divider/>}
+                {user.role !== Roles.ANONYMOUS &&
                     <MenuItem onClick={handleLogout}>
                         <ListItemIcon><LogoutIcon/> </ListItemIcon>
                         <ListItemText>Logout</ListItemText>
@@ -211,6 +208,7 @@ export default function Login({isOpen = false}) {
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
                                 label="Password"
+                                autoComplete="on"
                                 onInput={handleInputPassword}
                                 endAdornment={<InputAdornment position="end">
                                     <IconButton aria-label="toggle password visibility"

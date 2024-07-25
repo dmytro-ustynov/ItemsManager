@@ -14,7 +14,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 import UpdateIcon from '@mui/icons-material/Update';
-import {useAuthState} from "../components/auth/context";
+import {Roles, useAuthState} from "../components/auth/context";
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
 import MessageHandler from "../components/MessageHandler";
 
@@ -40,15 +40,15 @@ function ItemPage() {
     }
 
     useEffect(() => {
-        if (!!itemId && user.role !== 'anonymous') {
+        if (!!itemId && user.role !== Roles.ANONYMOUS) {
             getItem()
         }
-        if (user.role === 'anonymous') {
+        if (user.role === Roles.ANONYMOUS) {
             setErrorMessage('Для перегляду необхідно увійти')
             const redirectUrl = window.location.pathname + window.location.search
             sessionStorage.setItem('redirectTo', redirectUrl)
         } else {
-            sessionStorage.setItem('redirectTo', null)
+            sessionStorage.removeItem('redirectTo')
             if (!!itemId && !item) {
                 setErrorMessage('Такий елемент не знайдено')
             } else {
@@ -106,7 +106,7 @@ function ItemPage() {
                     </div>
                 </div> : <div className="page-placeholder">
                     <div>{errorMessage}</div>
-                    {user.role != 'registered' && <Link to="/login">Login</Link>}
+                    {user.role !== Roles.REGISTERED && <Link to="/login">Login</Link>}
                 </div>
             }
             <MessageHandler/>

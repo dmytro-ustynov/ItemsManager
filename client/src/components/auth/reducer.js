@@ -2,25 +2,23 @@ import {v4 as uuidv4} from 'uuid';
 import {fetcher} from "../../utils/fetch_utils";
 import {ACCESS_TOKEN_KEY, BASE_URL, CURRENT_USER_KEY, REFRESH_TOKEN_URl} from "../../utils/constants";
 
-let user
-let token
-let uid
+let user = null;
+let token = null;
 
 
-const getCookie = function (name) {
-    var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    if (match) return match[2];
+const getCookie = (name) => {
+    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+    return match ? match[2] : null;
 }
 
-const init = async () => {
+export const init = async () => {
     const url = BASE_URL + REFRESH_TOKEN_URl
     user = localStorage.getItem(CURRENT_USER_KEY)
         ? JSON.parse(localStorage.getItem(CURRENT_USER_KEY))
-        : "";
-    if (!Boolean(user)) {
-        uid = uuidv4();
+        : null;
+    if (!user) {
         user = {
-            user_id: uid,
+            user_id: uuidv4(),
             role: 'anonymous',
             is_active: false
         }
@@ -29,18 +27,25 @@ const init = async () => {
     const cookieToken = getCookie(ACCESS_TOKEN_KEY)
     token = cookieToken || storageToken
     if (!token) {
-        console.log('refreshing token')
-        const tokenData = await fetcher({url, credentials: true, method: "GET"})
-        if (!!tokenData[ACCESS_TOKEN_KEY])
-        {
-            console.log('token refreshed')}
-        token = tokenData[ACCESS_TOKEN_KEY] ? tokenData[ACCESS_TOKEN_KEY] : ''
+        try {
+            console.log('refreshing token')
+            const tokenData = await fetcher({url, credentials: 'include', method: 'GET'})
+            if (tokenData[ACCESS_TOKEN_KEY]) {
+                console.log('token refreshed')
+                token = tokenData[ACCESS_TOKEN_KEY];
+            } else {
+                token = ''
+            }
+        } catch (error) {
+            console.error('Error refreshing token:', error)
+            token = ''
+        }
     }
     localStorage.setItem(ACCESS_TOKEN_KEY, token)
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user))
-}
 
-init()
+    return {user, token}
+};
 
 export const initialState = {
     user: "" || user,

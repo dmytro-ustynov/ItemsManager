@@ -2,26 +2,46 @@ import React, {useContext, useEffect, useState} from "react";
 import Collapsible from "react-collapsible";
 import ItemInfo from "./ItemInfo";
 import ItemCaption from "./ItemCaption";
-import {Checkbox, CircularProgress, IconButton} from "@mui/material";
+import {Checkbox, IconButton} from "@mui/material";
+import LinearProgress from '@mui/material/LinearProgress';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import {StoreContext} from "../store/store";
 import {observer} from "mobx-react";
-import {useAuthState} from "./auth/context";
+import {Roles, useAuthState} from "./auth/context";
 import {useNavigate} from "react-router-dom";
+import {BASE_URL, SEARCH_URL} from "../utils/constants";
+import {fetcher} from "../utils/fetch_utils";
 
 function ItemList() {
     const store = useContext(StoreContext)
-    const {items, pending} = store
+    const {items, pending, setItems, startRequest, finishRequest, setFields} = store
     const [checkedCounter, setCheckedCounter] = useState(0)
     const state = useAuthState()
     const user = state.user
     const navigate = useNavigate();
 
     const getItems = async () => {
-        await store.fetchItems()
+        let getUrl = BASE_URL + SEARCH_URL
+        if (user.role === "registered" && user.is_active === true) {
+            console.debug('fetching: ' + getUrl)
+            startRequest()
+            const data = await fetcher({url: getUrl, method: "GET", credentials: true})
+            if (!!data.items) {
+                const foundItems = await data.items || []
+                const fields = await data.fields || []
+                setItems(foundItems)
+                setFields(fields)
+            } else {
+                setFields([])
+                setItems([])
+            }
+            finishRequest()
+        } else {
+            setItems([])
+        }
     }
     useEffect(() => {
-        if (user.role !== 'registered') {
+        if (user.role !== Roles.REGISTERED) {
             sessionStorage.removeItem('redirectTo')
         }
         getItems()
@@ -39,12 +59,12 @@ function ItemList() {
 
     return (
         <div className={"items-list"}>
-            {pending && <CircularProgress/>}
+            {pending && <div style={{width: '100%'}}><LinearProgress/></div>}
             <div>
                 {checkedCounter > 0 && <span className={"text-info left"}> Відмічено: {checkedCounter}</span>}
             </div>
 
-            {user.role === 'registered' && items.length > 0 && items.map((item) => {
+            {user.role === Roles.REGISTERED && items.length > 0 && items.map((item) => {
                 return (
                     <div className={"item-block"} key={item._id}>
                         <Collapsible className={"item-collapsible-block"}
@@ -67,10 +87,10 @@ function ItemList() {
                 )
             })
             }
-            {user.role !== 'registered' &&
+            {user.role !== Roles.REGISTERED &&
                 <div className={"text-info"} style={{marginTop: '30px'}}>
                     Для перегляду списку потрібно увійти</div>}
-            {(user.role === 'registered' && user.is_active !== true) &&
+            {(user.role === Roles.REGISTERED && user.is_active !== true) &&
                 <div className={"text-info"} style={{marginTop: '30px'}}>
                     Ваш акаунт не активований, зверніться до адміністратора</div>}
         </div>

@@ -13,18 +13,19 @@ function TotalInfo() {
     useEffect(() => {
         let _counters = countServiceNumbers(items)
         setCounters(_counters)
-    }, [store, items, items.length]);
+    }, [items, items.length]);
 
     return (
         <div className={"search-handlers"}>
-            <div className={"info-total"}>
-                Всього: {pending ? <Loader/> : items.length}
-            </div>
-            {Object.keys(SERVICES).map((key) => {
-                return <div key={key}
-                            className={`info-${SERVICES[key].alias}`}>&#10687; - {SERVICES[key].name}: {pending ?
-                    <Loader/> : counters[key]}</div>
-            })}
+            {pending? <Loader />: <>
+                <div className={"info-total"}>
+                    Всього: {items.length}
+                </div>
+                {Object.keys(SERVICES).map((key) => {
+                    return <div key={key}
+                                className={`info-${SERVICES[key].alias}`}>&#10687; {SERVICES[key].name}:
+                        - {counters[key]}</div>
+                })}</>}
         </div>
     )
 }

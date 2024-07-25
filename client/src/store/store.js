@@ -112,9 +112,8 @@ export const StoreProvider = (({children}) => {
                 this.items = this.__allItems
             },
             deleteItem(itemId) {
-                const items = this.__allItems.filter((item) => item._id !== itemId)
-                this.items = items
-                this.__allItems = items
+                this.__allItems = this.__allItems.filter((item) => item._id !== itemId);
+                this.items = this.items.filter((item) => item._id !== itemId);
             },
 
             setMessage(message, level = null) {

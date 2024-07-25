@@ -1,5 +1,7 @@
-import React, {useReducer} from "react";
-import {AuthReducer, initialState} from "./reducer";
+import React, {useEffect, useReducer, useState} from "react";
+import {AuthReducer, initialState, init} from './reducer';
+import Skeleton from "@mui/material/Skeleton";
+import {Stack} from "@mui/material";
 
 const AuthStateContext = React.createContext();
 const AuthDispatchContext = React.createContext();
@@ -21,10 +23,32 @@ export function useAuthDispatch() {
 }
 
 export const AuthProvider = ({children}) => {
-    const [user, dispatch] = useReducer(AuthReducer, initialState);
+    const [state, dispatch] = useReducer(AuthReducer, initialState);
+    const [isInitialized, setIsInitialized] = useState(false);
+
+    useEffect(() => {
+        const initializeAuth = async () => {
+            const {user, token} = await init();
+            dispatch({type: 'LOGIN_SUCCESS', payload: {user, token}});
+            setIsInitialized(true);
+        };
+        initializeAuth();
+    }, []);
+
+    if (!isInitialized) {
+        return (
+            <div className="page-placeholder">
+                <Stack spacing={1}>
+                    <Skeleton variant="rectangular" width={"80%"} height={"10vh"}/>
+                    Loading...
+                    <Skeleton variant="rectangular" width={"80%"} height={60}/>
+                    <Skeleton variant="rounded" width={"80%"} height={60}/>
+                </Stack>
+            </div>)
+    }
 
     return (
-        <AuthStateContext.Provider value={user}>
+        <AuthStateContext.Provider value={state}>
             <AuthDispatchContext.Provider value={dispatch}>
                 {children}
             </AuthDispatchContext.Provider>
@@ -33,7 +57,7 @@ export const AuthProvider = ({children}) => {
 };
 
 export const Roles = {
-    ANONYMOUS : 'anonymous',
-    REGISTERED : 'registered',
-    PREMIUM : 'premium',
+    ANONYMOUS: 'anonymous',
+    REGISTERED: 'registered',
+    PREMIUM: 'premium',
 }

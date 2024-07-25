@@ -1,13 +1,10 @@
-import Header from "../components/Header";
 import logoImage from "../images/logo_640.jpg";
 import Login from "../components/Login";
-// import {StoreProvider} from "../store/store";
 import Footer from "../components/Footer";
 import React from "react";
 import MessageHandler from "../components/MessageHandler";
 
 function LoginPage({file}) {
-
     return (
         <>
             <header className="top-header">

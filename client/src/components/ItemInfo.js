@@ -1,9 +1,9 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {fetcher} from "../utils/fetch_utils";
 import {ADD_FIELD_URL, ALERT_LEVEL, BASE_URL, FIELDS, SAVE_NOTE_URL} from "../utils/constants";
 import {Button, Table, TableBody, TableCell, TableRow, TextField, Typography} from "@mui/material";
-import {useAuthState} from "./auth/context";
+import {Roles, useAuthState} from "./auth/context";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
@@ -24,14 +24,12 @@ function ItemInfo(props) {
     const [newFieldName, setNewFieldName] = useState("")
     const [newFieldValue, setNewFieldValue] = useState("")
     const [errorMessage, setErrorMessage] = useState(null)
-    const [newFieldOptions, setNewFieldOptions] = useState([])
 
     const state = useAuthState()
     const user = state.user
 
     const store = useContext(StoreContext)
     const {setMessage, setAlertLevel, clearMessage, addItemField, fields} = store
-    const navigate = useNavigate();
 
     useEffect(() => {
         let attrs = []
@@ -41,12 +39,6 @@ function ItemInfo(props) {
         setAttributes(attrs)
         setNoteText(item.notes)
     }, [item])
-    // console.log(store.items.length)
-
-    useEffect(() => {
-        // we get options for New Field name from backend
-        setNewFieldOptions(fields)
-    }, [fields])
 
     const handleNoteInput = (event) => {
         setNoteText(event.target.value)
@@ -126,7 +118,6 @@ function ItemInfo(props) {
                         })}
                     </TableBody>
                 </Table>
-                {user.username === 'root' && <RootItemActions item={item}/>}
             </div>
             <div style={{flex: 1, margin: "5px"}}>
                 {((noteText && noteText.length > 0) || user.role !== 'anonymous') && (
@@ -135,10 +126,10 @@ function ItemInfo(props) {
                         <textarea name="" id="" rows={noteText?.length > 100 ? 5 : 2}
                                   sx={{borderRadius: "0.5rem"}}
                                   value={noteText}
-                                  disabled={user.role === 'anonymous'}
+                                  disabled={user.role === Roles.ANONYMOUS}
                                   onInput={handleNoteInput}/>
                         <div className="note-input-button">
-                            {user.role !== 'anonymous' &&
+                            {user.role !== Roles.ANONYMOUS &&
                                 <Button variant="contained" color="success" onClick={handleNoteSubmit}
                                         disabled={submitDisabled()}>ЗБЕРЕГТИ примітку</Button>}
                         </div>
@@ -166,9 +157,9 @@ function ItemInfo(props) {
                                             value={newFieldName}
                                             onChange={handleNewFieldNameInput}
                                             label="Новий атрибут">
-                                            {newFieldOptions.map((option) => (
-                                                <MenuItem key={option.value} value={option.value}>
-                                                    {option.label}
+                                            {fields.map((option) => (
+                                                <MenuItem key={option} value={option}>
+                                                    {option}
                                                 </MenuItem>))}
                                         </TextField>
 
@@ -189,7 +180,7 @@ function ItemInfo(props) {
                                     </form>
                                 </div>
                             )}
-                            {user.role !== 'anonymous' &&
+                            {user.role !== Roles.ANONYMOUS &&
                                 <Fab onClick={handleAddFieldClick} color='success'
                                      title="Додати новий атрибут"
                                      size="large"
@@ -207,6 +198,7 @@ function ItemInfo(props) {
                 {mode === 'list' ? <Link to={`/item/?item_id=${item._id}`}>докладніше ...</Link> :
                     <Link to={"/"}>назад</Link>
                 }
+                {user.username === 'root' && <RootItemActions item={item}/>}
             </div>
         </div>
     )
