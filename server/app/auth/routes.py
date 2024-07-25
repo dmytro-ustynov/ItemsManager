@@ -39,12 +39,13 @@ def user_login(login: UserLoginSchema, response: Response):
         'is_active': mongo_user.is_active,
         'role': 'registered'  # required field to handle frontEnd logic
     }
-    r_token = sign_jwt(user, seconds=7200, token_key='refresh_token')
-    result = {**sign_jwt(user),
-              **r_token,
+    a_token = sign_jwt(user)
+    r_token = sign_jwt(user, mode='refresh')
+    result = {'access_token': a_token,
               'result': True,
               'user': user}  # dict
-    response.set_cookie(key='refresh_token', value=r_token, httponly=True, samesite='none')
+    response.set_cookie(key='refresh_token', value=r_token, httponly=True)
+    # samesite='none', secure=True) # this for https
     return result
 
 
@@ -64,7 +65,7 @@ def refresh_token(request: Request, response: Response):
     except jwt.exceptions.ExpiredSignatureError:
         return {'result': False, 'details': 'Refresh token is expired'}
     if not payload:
-        return {'result': False}
+        return {'result': False, 'details': "unable to decode token"}
     user_id = payload.get('user_id')
     mongo_user = MM.query(User).get(user_id=user_id)
     if not mongo_user:
@@ -72,18 +73,19 @@ def refresh_token(request: Request, response: Response):
     user = dict(username=mongo_user.username,
                 user_id=mongo_user.user_id,
                 is_active=mongo_user.is_active)
-    r_token = sign_jwt(user, seconds=7200, token_key='refresh_token')
-    result = {**sign_jwt(user),
-              **r_token,
-              'result': True}  # dict
-    response.set_cookie(key='refresh_token', value=r_token, httponly=True, samesite='none')
+    a_token = sign_jwt(user)
+    r_token = sign_jwt(user, mode='refresh')
+    result = {'access_token': a_token,
+              'result': True,
+              'user': user}  # dict
+    response.set_cookie(key='refresh_token', value=r_token, httponly=True)
+    # samesite='none')
     return result
 
 
 @router.post("/auth/logout")
 async def logout(response: Response):
-    response.set_cookie(key='refresh_token', value='')
-    # unset_jwt_cookies(response)
+    response.set_cookie(key='refresh_token', value='', httponly=True)
     return {"msg": "logout OK"}
 
 

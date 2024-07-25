@@ -17,21 +17,26 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import LoadingButton from '@mui/lab/LoadingButton';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InputAdornment from '@mui/material/InputAdornment';
+import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import {useState} from "react";
+import {useContext, useState} from "react";
 import {useAuthDispatch, useAuthState} from "./auth/context";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
-import {ACCESS_TOKEN_KEY, BASE_URL, CURRENT_USER_KEY} from "../utils/constants";
+import {ACCESS_TOKEN_KEY, ALERT_LEVEL, BASE_URL, CURRENT_USER_KEY} from "../utils/constants";
 import {fetcher} from "../utils/fetch_utils"
 import {authTypes} from "./auth/reducer";
 import FileUploadForm from "./FileUploadForm";
+import {StoreContext} from "../store/store";
 
-export default function Login() {
+export default function Login({isOpen = false}) {
     const state = useAuthState()
     const user = state.user
+    const store = useContext(StoreContext)
+    const {setMessage, setAlertLevel} = store
+
     const [anchorEl, setAnchorEl] = useState(null);
-    const [openLoginForm, setOpenLoginForm] = useState(false);
+    const [openLoginForm, setOpenLoginForm] = useState(isOpen);
     const [openDocsDialog, setOpenDocsDialog] = useState(false);
     const [openUploadDialog, setOpenUploadDialog] = useState(false);
     const [showPassword, setShowPassword] = useState(null);
@@ -84,17 +89,25 @@ export default function Login() {
         event.preventDefault()
         setPending(true)
         const url = BASE_URL + '/auth/login'
-        const data = await fetcher({url, payload: {username: userName, password}, method: "POST"});
+        const data = await fetcher({url,
+            payload: {username: userName, password},
+            method: "POST",
+            credentials: true});
         if (data.result === true) {
             setErrorMsg("")
-            setSuccessMsg(`Successfully logged, welcome ${userName}!`)
+            setAlertLevel(ALERT_LEVEL.INFO)
+            setMessage(`Successfully logged, welcome ${userName}!`)
             dispatch({type: authTypes.LOGIN_SUCCESS, payload: data});
             localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token);
             localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(data.user));
+
             setTimeout(() => {
                 handleCloseLoginForm()
             }, 1000)
             console.log(`user logged in`)
+            if (window.location !== '/') {
+                window.location = '/'
+            }
         } else {
             let errMsg
             if (data.status === 500) {
@@ -114,7 +127,7 @@ export default function Login() {
         localStorage.removeItem(ACCESS_TOKEN_KEY);
         dispatch({type: authTypes.LOGOUT});
         const url = BASE_URL + '/auth/logout'
-        await fetcher({url})
+        await fetcher({url, credentials: true})
     }
 
     const closePopUp = () => {
@@ -136,16 +149,23 @@ export default function Login() {
                         <ListItemText>Login</ListItemText>
                     </MenuItem>}
                 <MenuItem onClick={handleClose} disabled={user.role === 'anonymous'}>
-                    <ListItemIcon><ManageAccountsIcon/> </ListItemIcon>
-                    <ListItemText>My account</ListItemText>
+                    {user.role === 'anonymous' ? (<><ListItemIcon><ManageAccountsIcon/> </ListItemIcon>
+                            <ListItemText>My account</ListItemText></>) :
+                        <><ListItemIcon>{user.is_active === true ? <ManageAccountsIcon/> :
+                            <ReportProblemOutlinedIcon title={"Необхідно активувати акаунт"}/>}
+                        </ListItemIcon>
+                            <ListItemText>{user.username}</ListItemText></>
+                    }
                 </MenuItem>
-                {user.role !== 'anonymous' && <MenuItem onClick={() => {
-                    setOpenUploadDialog(true);
-                    setAnchorEl(null)
-                }}>
-                    <ListItemIcon><UploadFileIcon/> </ListItemIcon>
-                    <ListItemText>Масова загрузка з Excel</ListItemText>
-                </MenuItem>}
+                {user.role !== 'anonymous' &&
+                    <MenuItem disabled={user.is_active !== true}
+                              onClick={() => {
+                                  setOpenUploadDialog(true);
+                                  setAnchorEl(null)
+                              }}>
+                        <ListItemIcon><UploadFileIcon/> </ListItemIcon>
+                        <ListItemText>Масова загрузка з Excel</ListItemText>
+                    </MenuItem>}
                 <MenuItem onClick={() => setOpenDocsDialog(true)}>
                     <ListItemIcon><LibraryBooksIcon/> </ListItemIcon>
                     <ListItemText>Документи</ListItemText>
