@@ -2,6 +2,7 @@ import React, {createContext} from 'react';
 import {useLocalObservable} from "mobx-react";
 import {BASE_URL, FIELDS, SEARCH_URL} from "../utils/constants";
 import {SERVICE_TO_NUMBER} from "../generated_constants";
+import {fetcher} from "../utils/fetch_utils";
 
 export const StoreContext = createContext({});
 
@@ -18,25 +19,23 @@ export const StoreProvider = (({children}) => {
                 this.__allItems = items
                 this.items = items
             },
-            // async fetchItems() {
-            //     const url = BASE_URL + SEARCH_URL
-            //     console.log('items: ', this.items.length)
-            //     if (this.items.length > 0) return; // If items are already fetched, do nothing
-            //     console.log('fetching...')
-            //     this.pending = true;
-            //     try {
-            //         const data = await fetcher({url, method: "GET", credentials: true})
-            //         // const data = await response.json();
-            //         this.items = data.items || [];
-            //         this.fields = data.fields || [];
-            //     } catch (error) {
-            //         console.error("Failed to fetch items:", error);
-            //         this.items = [];
-            //         this.fields = [];
-            //     } finally {
-            //         this.pending = false;
-            //     }
-            // },
+            async fetchItems() {
+                const url = BASE_URL + SEARCH_URL
+                if (this.items.length > 0) return; // If items are already fetched, do nothing
+                console.log('fetching...')
+                this.pending = true;
+                try {
+                    const data = await fetcher({url, method: "GET", credentials: true})
+                    this.items = data.items || [];
+                    this.fields = data.fields || [];
+                } catch (error) {
+                    console.error("Failed to fetch items:", error);
+                    this.items = [];
+                    this.fields = [];
+                } finally {
+                    this.pending = false;
+                }
+            },
             _getItemById(itemId) {
                 return this.__allItems.find((item) => item.id === itemId)
             },

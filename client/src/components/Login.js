@@ -28,12 +28,14 @@ import {fetcher} from "../utils/fetch_utils"
 import {authTypes} from "./auth/reducer";
 import FileUploadForm from "./FileUploadForm";
 import {StoreContext} from "../store/store";
+import {useNavigate} from "react-router-dom";
 
 export default function Login({isOpen = false}) {
     const state = useAuthState()
     const user = state.user
     const store = useContext(StoreContext)
     const {setMessage, setAlertLevel} = store
+    const navigate = useNavigate();
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [openLoginForm, setOpenLoginForm] = useState(isOpen);
@@ -105,9 +107,8 @@ export default function Login({isOpen = false}) {
                 handleCloseLoginForm()
             }, 1000)
             console.log(`user logged in`)
-            if (window.location !== '/') {
-                window.location = '/'
-            }
+            const redirectTo = sessionStorage.getItem('redirectTo') || '/';
+            navigate(redirectTo);
         } else {
             let errMsg
             if (data.status === 500) {
@@ -122,6 +123,7 @@ export default function Login({isOpen = false}) {
     }
 
     const handleLogout = async () => {
+        store.setItems([])
         handleClose()
         localStorage.removeItem(CURRENT_USER_KEY);
         localStorage.removeItem(ACCESS_TOKEN_KEY);

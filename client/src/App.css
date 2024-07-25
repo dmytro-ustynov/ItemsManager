@@ -97,12 +97,18 @@
     min-width: 100vmin;
 }
 
-.page-placeholder{
+.page-placeholder {
     height: 85vh;
     background-color: #282c34;
     color: white;
-
 }
+
+.back-pointer {
+    color: white;
+    cursor: pointer;
+    background-color: #282c34;
+}
+
 .item-checkbox {
     padding: 5px;
 }
@@ -122,7 +128,7 @@
     animation: show 200ms;
 }
 
-.item-actions{
+.item-actions {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -163,7 +169,6 @@ td {
     flex: 1;
     padding: 10px;
 }
-
 
 .note-input-block textarea:disabled {
     background-color: aliceblue;

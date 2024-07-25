@@ -13,7 +13,7 @@ function TotalInfo() {
     useEffect(() => {
         let _counters = countServiceNumbers(items)
         setCounters(_counters)
-    }, [items, items.length]);
+    }, [store, items, items.length]);
 
     return (
         <div className={"search-handlers"}>

@@ -1,6 +1,4 @@
 import React, {useContext, useEffect, useState} from "react";
-import {BASE_URL, SEARCH_URL} from "../utils/constants";
-import {fetcher} from "../utils/fetch_utils";
 import Collapsible from "react-collapsible";
 import ItemInfo from "./ItemInfo";
 import ItemCaption from "./ItemCaption";
@@ -13,36 +11,21 @@ import {useNavigate} from "react-router-dom";
 
 function ItemList() {
     const store = useContext(StoreContext)
-    const {items, setItems, setFields, pending, startRequest, finishRequest} = store
+    const {items, pending} = store
     const [checkedCounter, setCheckedCounter] = useState(0)
     const state = useAuthState()
     const user = state.user
     const navigate = useNavigate();
 
     const getItems = async () => {
-        let getUrl = BASE_URL + SEARCH_URL
-        if (user.role === "registered" && user.is_active === true) {
-            console.debug('fetching: ' + getUrl)
-            startRequest()
-            const data = await fetcher({url: getUrl, method: "GET", credentials: true})
-            if (!!data.items) {
-                const foundItems = await data.items || []
-                const fields = await data.fields || []
-                setItems(foundItems)
-                setFields(fields)
-            } else {
-                setFields([])
-                setItems([])
-            }
-            finishRequest()
-        } else {
-            setItems([])
-        }
-
+        await store.fetchItems()
     }
     useEffect(() => {
+        if (user.role !== 'registered') {
+            sessionStorage.removeItem('redirectTo')
+        }
         getItems()
-    }, [user.role])
+    }, [store, user.role])
     const handleCheckBoxClick = (event) => {
         let counter = checkedCounter
         if (event.target.checked === true) {
@@ -73,7 +56,7 @@ function ItemList() {
                         <div style={{display: 'flex', alignItems: 'baseline'}}>
                             <IconButton title="Докладніше..."
                                         onClick={() => {
-                                            navigate( `/item/?item_id=${item._id}`)
+                                            navigate(`/item/?item_id=${item._id}`)
                                         }}>
                                 <ReadMoreIcon style={{color: 'white'}}/>
                             </IconButton>

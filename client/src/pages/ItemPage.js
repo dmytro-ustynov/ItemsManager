@@ -1,7 +1,6 @@
 import {Link, useNavigate, useSearchParams} from 'react-router-dom';
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
-// import {StoreProvider} from "../store/store";
 import Collapsible from "react-collapsible";
 import ItemCaption from "../components/ItemCaption";
 import ItemInfo from "../components/ItemInfo";
@@ -9,15 +8,15 @@ import {fetcher} from "../utils/fetch_utils";
 import {BASE_URL, QRCODE_URL} from "../utils/constants";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import {Checkbox, Typography} from "@mui/material";
+import {Typography} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import DownloadIcon from '@mui/icons-material/Download';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 import UpdateIcon from '@mui/icons-material/Update';
 import {useAuthState} from "../components/auth/context";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
+import MessageHandler from "../components/MessageHandler";
 
 function ItemPage() {
     const [searchParams] = useSearchParams();
@@ -30,9 +29,6 @@ function ItemPage() {
     const user = state.user
     const navigate = useNavigate();
 
-    // const store = useContext(StoreContext)
-    // const {selectedItem, setSelectedItem} = store
-
     const getItem = async () => {
         const url = BASE_URL + `/items/${itemId}`
         const data = await fetcher({url, method: 'GET', credentials: true})
@@ -44,13 +40,15 @@ function ItemPage() {
     }
 
     useEffect(() => {
-        // console.log(items)
         if (!!itemId && user.role !== 'anonymous') {
             getItem()
         }
         if (user.role === 'anonymous') {
             setErrorMessage('Для перегляду необхідно увійти')
+            const redirectUrl = window.location.pathname + window.location.search
+            sessionStorage.setItem('redirectTo', redirectUrl)
         } else {
+            sessionStorage.setItem('redirectTo', null)
             if (!!itemId && !item) {
                 setErrorMessage('Такий елемент не знайдено')
             } else {
@@ -60,21 +58,18 @@ function ItemPage() {
         setQrURL(`${QRCODE_URL}/${itemId}`)
     }, [itemId, user.role]);
 
-
     return (
         <>
             <Header/>
+            <div className="back-pointer" onClick={() => navigate("/")}>
+                <IconButton title="Назад до списку..."
+                            sx={{transform: "scaleX(-1)"}}>
+                    <ReadMoreIcon sx={{color: 'white'}}/>
+                </IconButton> До списку
+            </div>
             {!!item ?
                 <div className={"items-list"}>
-                    <div style={{color: 'white', cursor: "pointer"}}
-                         onClick={() => {
-                             navigate("/")
-                         }}>
-                        <IconButton title="Назад до списку..."
-                                    sx={{transform: "scaleX(-1)"}}>
-                            <ReadMoreIcon sx={{color: 'white'}}/>
-                        </IconButton> До списку
-                    </div>
+
                     <div className={"item-block"} key={item._id}>
 
                         <Collapsible className={"item-collapsible-block"}
@@ -114,6 +109,7 @@ function ItemPage() {
                     {user.role != 'registered' && <Link to="/login">Login</Link>}
                 </div>
             }
+            <MessageHandler/>
             <Footer/>
         </>
     );
