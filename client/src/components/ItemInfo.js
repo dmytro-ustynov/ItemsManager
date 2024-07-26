@@ -13,7 +13,7 @@ import MenuItem from "@mui/material/MenuItem";
 import RootItemActions from "./RootItemActions";
 
 function ItemInfo(props) {
-    let item = props.item
+    let {item, setItem} = props
     let mode = props.mode || 'list'
     const [attributes, setAttributes] = useState([])
     const [noteText, setNoteText] = useState('')
@@ -158,8 +158,8 @@ function ItemInfo(props) {
                                             onChange={handleNewFieldNameInput}
                                             label="Новий атрибут">
                                             {fields.map((option) => (
-                                                <MenuItem key={option} value={option}>
-                                                    {option}
+                                                <MenuItem key={option.value} value={option.value}>
+                                                    {option.label}
                                                 </MenuItem>))}
                                         </TextField>
 
@@ -198,7 +198,7 @@ function ItemInfo(props) {
                 {mode === 'list' ? <Link to={`/item/?item_id=${item._id}`}>докладніше ...</Link> :
                     <Link to={"/"}>назад</Link>
                 }
-                {user.username === 'root' && <RootItemActions item={item}/>}
+                {user.username === 'root' && <RootItemActions item={item} setItem={setItem}/>}
             </div>
         </div>
     )

@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import yaml
@@ -55,6 +56,13 @@ async def get_root_user(current_user: dict = Depends(get_current_user)):
 def get_filters_from_request(body: dict):
     valid_fields = ("search_string", "older_than", "younger_than", "service", "category")
     return {k: v for k, v in body.items() if k in valid_fields}
+
+
+def get_payload_request(body: dict):
+    upd = body.get('update')
+    if isinstance(upd, str):
+        upd = json.loads(upd)
+    return upd
 
 
 def do_pagination(result: dict, skip: int, limit: int, total_count: int):

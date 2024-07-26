@@ -1,11 +1,13 @@
 from bson import ObjectId
+from bson.errors import InvalidId
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import FileResponse
 
 from server.app.auth.utils import get_request_id
 from server.app.dal.mongo_manager import MongoManagerConnectionError
 from server.app.dal.query_builder import QueryBuilder
-from server.app.dependencies import MM, do_pagination, logger, get_filters_from_request, get_active_user, get_root_user
+from server.app.dependencies import MM, do_pagination, logger, SERVICE_TO_NUMBER_MAPPER
+from server.app.dependencies import get_filters_from_request, get_active_user, get_root_user, get_payload_request
 from server.app.dependencies import get_qr_image_path
 from server.app.file_manager.file_manager import FileManager, FileExtension
 from server.app.items.item import Item, FieldNames
@@ -49,7 +51,9 @@ async def get_items(search_string: str = None, skip: int = None, limit: int = No
 async def get_single_item(item_id: str):
     try:
         item = MM.query(Item).get(_id=ObjectId(item_id))
-        return {"result": True, "item": item.to_dict()}
+        return {"result": True, "item": item.to_dict(), 'fields': FieldNames.all(name=False)}
+    except InvalidId:
+        return {'result': False, 'details': 'invalid ID number'}
     except Exception as e:
         logger.error(str(e))
         return {"result": False}
@@ -57,6 +61,10 @@ async def get_single_item(item_id: str):
 
 @router.get("/qr_code/{item_id}")
 async def generate_qr_code(item_id: str):
+    try:
+        _ = ObjectId(item_id)
+    except InvalidId:
+        return {'result': False, 'details': 'invalid ID number'}
     path = get_qr_image_path(item_id)
     if path is not None:
         return FileResponse(path)
@@ -98,16 +106,17 @@ def filter_items(filters: dict = Depends(get_filters_from_request), ):
         raise HTTPException(status_code=432, detail=str(e))
 
 
-@router.post("/save_note", dependencies=[Depends(get_active_user)],
+@router.post("/save_note",
              summary="Add a note for the item with selected ID", )
-async def save_note(note_request: NoteRequest):
+async def save_note(note_request: NoteRequest, user: dict = Depends(get_active_user)):
     object_id = note_request.object_id
     note = note_request.note
     item = MM.query(Item).get(_id=ObjectId(object_id))
     if item:
-        update_result = MM.query(Item).update(filters={FieldNames.ID: item._id},
+        update_result = MM.query(Item).update(filters={FieldNames.ID: item.id},
                                               payload={FieldNames.notes: note})
         if str(update_result.get(FieldNames.ID, "")):
+            logger.info(f"User \"{user.get('username')}\" saved notes for item ID: {object_id}")
             return {"result": True, "_id": str(update_result.get(FieldNames.ID, ""))}
         logger.error(f"CAN NOT UPDATE {object_id} | result: {update_result}")
         return {"result": False}
@@ -143,7 +152,6 @@ async def export(ids_request: ItemsRequest):
 async def update_item(update_request: UpdateItemRequest):
     item_id = update_request.item_id
     item = MM.query(Item).get(_id=ObjectId(item_id))
-
     if not item:
         return {"result": False, "details": "Item not found"}
     to_update = {}
@@ -154,7 +162,7 @@ async def update_item(update_request: UpdateItemRequest):
         to_update = {field_name: payload.newFieldValue}
     if not to_update:
         return {"result": False, "details": "Overwriting of the existing fields is forbidden"}
-    update_result = MM.query(Item).update(filters={FieldNames.ID: item._id},
+    update_result = MM.query(Item).update(filters={FieldNames.ID: item.id},
                                           payload=to_update)
     if update_result:
         updated_item.update(to_update)
@@ -176,9 +184,43 @@ async def create_new_item(item: CreateItemRequest):
 @router.delete("/{item_id}", dependencies=[Depends(get_root_user)],
                summary="Delete element by its ID from database, only for the root user")
 async def delete_item(item_id: str):
+    item = MM.query(Item).get(_id=ObjectId(item_id))
+    if not item:
+        return {'result': False, 'details': 'item not found'}
     try:
         result = MM.query(Item).delete(_id=ObjectId(item_id))
+        logger.info(f"Root user deleted item: \"{item.to_dict()}\"")
         return {"result": True, 'deleted_count': result.deleted_count}
+    except InvalidId:
+        return {'result': False, 'details': 'invalid ID number'}
     except Exception as e:
         logger.error(str(e))
         raise HTTPException(status_code=432)
+
+
+@router.put("/{item_id}", dependencies=[Depends(get_root_user)],
+            summary="Completely update item by given ID, replacing existing with new payload")
+async def replace_item(item_id: str, payload: dict = Depends(get_payload_request)):
+    if not payload:
+        return {"result": False, "details": "empty payload"}
+    try:
+        item = MM.query(Item).get(_id=ObjectId(item_id))
+        if not item:
+            return {"result": False, "details": "Item not found"}
+        for key in ('created_at', 'updated_at', 'inventory', 'service_number'):
+            if key in payload:
+                payload.pop(key)
+        if FieldNames.service in payload:
+            payload['service_number'] = SERVICE_TO_NUMBER_MAPPER.get(payload.get(FieldNames.service), 0)
+        update_result = MM.query(Item).replace_one(filters={FieldNames.ID: ObjectId(item_id)},
+                                                   payload=payload)
+        if update_result is not None:
+            updated = {**item.to_dict(), **payload}
+            logger.info(f"Root user has updated item, ID: {item_id}")
+            return {'result': True, 'updated': updated}
+        return {'result': False, 'details': update_result}
+    except InvalidId:
+        return {'result': False, 'details': 'invalid ID number'}
+    except Exception as e:
+        logger.error(str(e))
+        return {'result': False, 'details': str(e)}

@@ -135,6 +135,11 @@ class MongoManager:
         if collection is not None:
             return collection.delete_one(filters)
 
+    def replace_one(self, filters, payload, collection=None):
+        collection = self._get_collection(collection)
+        if collection is not None:
+            return collection.replace_one(filters, payload)
+
     def query(self, cls):
         return MongoQuery(db=self, cls=cls)
 
@@ -188,6 +193,11 @@ class MongoQuery:
         if 'updated_at' not in payload:
             payload['updated_at'] = datetime.now()
         return self._db_manager.update(filters, payload, collection=self._collection)
+
+    def replace_one(self, filters, payload):
+        if 'updated_at' not in payload:
+            payload['updated_at'] = datetime.now()
+            return self._db_manager.replace_one(filters, payload, collection=self._collection)
 
     def create(self, payload):
         """

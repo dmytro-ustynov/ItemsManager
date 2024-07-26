@@ -1,6 +1,6 @@
 import {Link, useNavigate, useSearchParams} from 'react-router-dom';
 import {observer} from "mobx-react";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Collapsible from "react-collapsible";
 import ItemCaption from "../components/ItemCaption";
 import ItemInfo from "../components/ItemInfo";
@@ -17,6 +17,7 @@ import UpdateIcon from '@mui/icons-material/Update';
 import {Roles, useAuthState} from "../components/auth/context";
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
 import MessageHandler from "../components/MessageHandler";
+import {StoreContext} from "../store/store";
 
 function ItemPage() {
     const [searchParams] = useSearchParams();
@@ -27,6 +28,8 @@ function ItemPage() {
 
     const state = useAuthState()
     const user = state.user
+    const store = useContext(StoreContext)
+    const {fields, setFields} = store
     const navigate = useNavigate();
 
     const getItem = async () => {
@@ -34,6 +37,7 @@ function ItemPage() {
         const data = await fetcher({url, method: 'GET', credentials: true})
         if (!!data.item) {
             setItem(data.item)
+            fields.length === 0 && setFields(data.fields)
         } else {
             setItem(null)
         }
@@ -69,14 +73,13 @@ function ItemPage() {
             </div>
             {!!item ?
                 <div className={"items-list"}>
-
                     <div className={"item-block"} key={item._id}>
 
                         <Collapsible className={"item-collapsible-block"}
                                      key={item._id}
                                      open={true}
                                      trigger={<ItemCaption item={item}/>}>
-                            <ItemInfo item={item} mode={'info'}/>
+                            <ItemInfo item={item} setItem={setItem} mode={'info'}/>
                         </Collapsible>
                     </div>
                     <div className='item-actions'>

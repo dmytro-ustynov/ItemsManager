@@ -37,7 +37,7 @@ export const StoreProvider = (({children}) => {
                 }
             },
             _getItemById(itemId) {
-                return this.__allItems.find((item) => item.id === itemId)
+                return this.__allItems.find((item) => item.id === itemId || item._id === itemId)
             },
             setFields(fields) {
                 let options = []
@@ -49,6 +49,21 @@ export const StoreProvider = (({children}) => {
             addItemField(itemId, newFieldName, newFieldValue) {
                 const item = this._getItemById(itemId)
                 item[newFieldName] = newFieldValue
+            },
+            replaceItem(itemId, payload) {
+                const existingItem = this._getItemById(itemId);
+                if (existingItem) {
+                    const updatedItem = {...payload, _id: existingItem._id};
+                    this.__allItems = this.__allItems.map(item =>
+                        item._id === itemId ? updatedItem : item
+                    );
+                    this.items = this.items.map(item =>
+                        item._id === itemId ? updatedItem : item
+                    );
+                } else {
+                    console.warn('item not found', itemId)
+                    this.items.push({...payload, _id: itemId})
+                }
             },
             filterItems(filter) {
                 const {search, service, category, younger_than, older_than, noService} = filter
@@ -64,7 +79,7 @@ export const StoreProvider = (({children}) => {
                         passService = true;
                     }
                     if (!!noService) {
-                        // filter elements thatare not related neither to VNLZ nor SZ
+                        // filter elements that are not related neither to VNLZ nor SZ
                         passNoService = item.service_number !== 1 && item.service_number !== 2
                     }
 
