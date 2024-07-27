@@ -92,6 +92,13 @@
     /*color: wheat;*/
     padding: 5px 0;
 }
+.as-anchor{
+    cursor: pointer;
+    text-decoration: underline;
+}
+.as-anchor:hover{
+    text-decoration: none;
+}
 
 .item-title {
     min-height: 25px;
