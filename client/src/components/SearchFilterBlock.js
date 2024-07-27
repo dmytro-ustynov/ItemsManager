@@ -51,8 +51,10 @@ function SearchFilterBlock() {
         })
         const blobUrl = window.URL.createObjectURL(result)
         const anchor = document.createElement("a")
+        const d = new Date()
+        let filename = `Items_${d.toLocaleDateString().replaceAll('/', '-')}.xls`
         anchor.href = blobUrl
-        anchor.download = "items.xls"
+        anchor.download = filename
         anchor.click()
     }
     const handleFilterModalDialog = () => {
@@ -116,7 +118,7 @@ function SearchFilterBlock() {
         return !(youngerThanYear || olderThanYear || selectedService || filterSelected)
     }
     return (
-        <div className={"search-handlers"}>
+        <div className="search-handlers">
             <Dialog open={filterDialogOpen} onClose={() => setFilterDialogOpen(false)}>
                 <DialogTitle>Налаштування фільтрів</DialogTitle>
                 <DialogContent>
@@ -193,6 +195,7 @@ function SearchFilterBlock() {
             <div>
                 <Button variant="contained"
                         color="info"
+                        disabled={items.length === 0}
                         title="Налаштування Фільтрів"
                         onClick={handleFilterModalDialog}>
                     <img src={filterIcon} height={30} alt="" style={{padding: "0 5px"}}/>

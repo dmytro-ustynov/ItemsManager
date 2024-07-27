@@ -67,6 +67,7 @@
     /*background-color: var(--color-main-background);*/
     min-height: 85vh;
 }
+
 .pagination-block {
     display: flex;
     flex-direction: row;
@@ -126,7 +127,17 @@
     display: flex;
     flex-wrap: wrap;
     font-weight: 300;
-    gap: 0.5vmin;
+    /*gap: 0.5vmin;*/
+}
+
+.item-table {
+    flex: 1;
+    margin: 5px;
+}
+
+.flex-centered {
+    display: flex;
+    justify-content: center;
 }
 
 .new-fields-block {

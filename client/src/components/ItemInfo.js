@@ -63,7 +63,6 @@ function ItemInfo(props) {
     const addFieldSubmit = async (e) => {
         e.preventDefault();
         const payload = {item_id: item._id, payload: {newFieldName, newFieldValue}}
-        console.log(payload)
         const url = BASE_URL + ADD_FIELD_URL
         const result = await fetcher({url, payload, credentials: true, method: "POST"})
         if (result.result === true) {
@@ -103,27 +102,28 @@ function ItemInfo(props) {
     const forbiddenKeys = [FIELDS.NAME, "_id", "updated_at", "service_number", "notes", "inventory"]
 
     return (
-        <div className={"item-info"}>
-            <div style={{flex: 1, margin: "5px 0 5px 5px"}}>
-                <Table className={"table-item-info"} size="small">
+        <div className="item-info">
+            <div className="item-table">
+                <Table className="table-item-info" size="small">
                     <TableBody>
                         {attributes.map(([key, value], number) => {
                             return (
                                 !forbiddenKeys.includes(key) &&
                                 (<TableRow key={`${key}-${number}`}>
-                                    <TableCell style={{color: "white"}}> {key} </TableCell>
-                                    <TableCell style={{color: "white"}}> {value} </TableCell>
+                                    <TableCell sx={{color: "white"}}> {key} </TableCell>
+                                    <TableCell sx={{color: "white"}}> {value} </TableCell>
                                 </TableRow>)
                             )
                         })}
                     </TableBody>
                 </Table>
             </div>
-            <div style={{flex: 1, margin: "5px"}}>
+            <div className="item-table">
                 {((noteText && noteText.length > 0) || user.role !== 'anonymous') && (
                     <div className={'note-input-block'}>
                         <Typography variant="subtitle1" sx={{color: 'black'}}>Примітка:</Typography>
-                        <textarea name="" id="" rows={noteText?.length > 100 ? 5 : 2}
+                        <textarea name="" rows={noteText?.length > 100 ? 5 : 2}
+                                  id={`note-input-text-${item._id}`}
                                   sx={{borderRadius: "0.5rem"}}
                                   value={noteText}
                                   disabled={user.role === Roles.ANONYMOUS}
@@ -143,7 +143,7 @@ function ItemInfo(props) {
                             {saveClicked && !pendingRequest && errorRequest &&
                                 <span className={"text-danger"}>error</span>}
                         </div>
-                        <div style={{display: "flex", justifyContent: "center"}}>
+                        <div className="flex-centered">
                             {showNewField && (
                                 <div className="new-fields-block">
                                     <form name="new_field_form" onSubmit={addFieldSubmit}>

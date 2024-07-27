@@ -72,31 +72,30 @@ function ItemPage() {
                 </IconButton> До списку
             </div>
             {!!item ?
-                <div className={"items-list"}>
-                    <div className={"item-block"} key={item._id}>
-
-                        <Collapsible className={"item-collapsible-block"}
+                <div className="items-list">
+                    <div className="item-block" key={item._id}>
+                        <Collapsible className="item-collapsible-block"
                                      key={item._id}
                                      open={true}
                                      trigger={<ItemCaption item={item}/>}>
                             <ItemInfo item={item} setItem={setItem} mode={'info'}/>
                         </Collapsible>
                     </div>
-                    <div className='item-actions'>
-                        <div style={{flex: 1, margin: "5px 0 5px 5px"}}><Typography
+                    <div className="item-actions">
+                        <div className="item-table"><Typography
                             variant="h6">Згенерувати</Typography>
                             <div>Акт технічного стану
                                 <IconButton fontSize="small">
                                     <DownloadIcon color='primary'/>
                                 </IconButton></div>
                             <div>Накладна на видачу<IconButton fontSize="small">
-                                <DownloadIcon color='primary'/>
+                                <DownloadIcon color="primary"/>
                             </IconButton></div>
                             <div>Акт списання<IconButton fontSize="small">
-                                <DownloadIcon color='primary'/>
+                                <DownloadIcon color="primary"/>
                             </IconButton></div>
                             <div>Бірка<IconButton fontSize="small">
-                                <DownloadIcon color='primary'/>
+                                <DownloadIcon color="primary"/>
                             </IconButton></div>
                             <Typography
                                 variant="h6">Додатково</Typography>
@@ -104,11 +103,11 @@ function ItemPage() {
                             <div><ImportContactsIcon fontSize="small"/>Формуляр</div>
                             <div><UpdateIcon fontSize="small"/>Напрацювання</div>
                         </div>
-                        <div style={{flex: 1, margin: "5px 0 5px 5px"}}><img src={qrURL} alt="qr_code" width={"220px"}/>
+                        <div className='item-table'><img src={qrURL} alt="qr_code" width={"220px"}/>
                         </div>
                     </div>
                 </div> : <div className="page-placeholder">
-                    <div>{errorMessage}</div>
+                    <div className="text-info">{errorMessage}</div>
                     {user.role !== Roles.REGISTERED && <Link to="/login">Login</Link>}
                 </div>
             }
