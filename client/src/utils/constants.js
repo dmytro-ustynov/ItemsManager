@@ -11,6 +11,8 @@ export const ACCESS_TOKEN_KEY = "access_token"
 export const REFRESH_TOKEN_URl = "/auth/refresh_token"
 export const CURRENT_USER_KEY = "current_user"
 
+export const ITEMS_PER_PAGE = 20
+
 export const FIELDS = {
     NAME: "найменування",
     INVENTORY_NUMBER: "інвентарний номер",

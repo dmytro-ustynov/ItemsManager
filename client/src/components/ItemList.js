@@ -11,10 +11,11 @@ import {Roles, useAuthState} from "./auth/context";
 import {useNavigate} from "react-router-dom";
 import {BASE_URL, SEARCH_URL} from "../utils/constants";
 import {fetcher} from "../utils/fetch_utils";
+import PaginationComponent from "./Pagination";
 
 function ItemList() {
     const store = useContext(StoreContext)
-    const {items, pending, setItems, startRequest, finishRequest, setFields} = store
+    const {items, pending, setItems, startRequest, finishRequest, setFields, counters} = store
     const [checkedCounter, setCheckedCounter] = useState(0)
     const state = useAuthState()
     const user = state.user
@@ -57,43 +58,48 @@ function ItemList() {
         setCheckedCounter(counter)
     }
 
-    return (
-        <div className={"items-list"}>
-            {pending && <div style={{width: '100%'}}><LinearProgress/></div>}
-            <div>
-                {checkedCounter > 0 && <span className={"text-info left"}> Відмічено: {checkedCounter}</span>}
-            </div>
-
-            {user.role === Roles.REGISTERED && items.length > 0 && items.map((item) => {
-                return (
-                    <div className={"item-block"} key={item._id}>
-                        <Collapsible className={"item-collapsible-block"}
-                                     key={item._id}
-                                     trigger={<ItemCaption item={item}/>}>
-
-                            <ItemInfo item={item}/>
-                        </Collapsible>
-                        <div style={{display: 'flex', alignItems: 'baseline'}}>
-                            <IconButton title="Докладніше..."
-                                        onClick={() => {
-                                            navigate(`/item/?item_id=${item._id}`)
-                                        }}>
-                                <ReadMoreIcon style={{color: 'white'}}/>
-                            </IconButton>
-                            <Checkbox onClick={handleCheckBoxClick}/>
+    return (<>
+            <PaginationComponent/>
+            <div className={"items-list"}>
+                {pending && <div style={{width: '100%'}}><LinearProgress/></div>}
+                <div className="item-block" style={{minHeight: '25px'}}>
+                    {user.role !== Roles.ANONYMOUS && <>
+                        {counters.filtered !== null && counters.filtered !== undefined &&  // zero found elements is ok to display
+                            <span style={{marginRight: "15px", color: "white"}}>
+                            {counters.filtered === 0 ? "Нічого не знайдено" : `Знайдено: ${counters.filtered}`}
+                            </span>}
+                        <span className="text-info"> {checkedCounter > 0 ? `Відмічено: ${checkedCounter}` : ""}</span>
+                    </>}
+                </div>
+                {user.role === Roles.REGISTERED && items.length > 0 && items.map((item) => {
+                    return (
+                        <div className="item-block" key={item._id}>
+                            <Collapsible className={"item-collapsible-block"}
+                                         key={item._id}
+                                         trigger={<ItemCaption item={item}/>}>
+                                <ItemInfo item={item}/>
+                            </Collapsible>
+                            <div style={{display: 'flex', alignItems: 'baseline'}}>
+                                <IconButton title="Докладніше..."
+                                            onClick={() => {
+                                                navigate(`/item/?item_id=${item._id}`)
+                                            }}>
+                                    <ReadMoreIcon style={{color: 'white'}}/>
+                                </IconButton>
+                                <Checkbox onClick={handleCheckBoxClick} id={`checkbox-${item._id}`}/>
+                            </div>
                         </div>
-
-                    </div>
-                )
-            })
-            }
-            {user.role !== Roles.REGISTERED &&
-                <div className={"text-info"} style={{marginTop: '30px'}}>
-                    Для перегляду списку потрібно увійти</div>}
-            {(user.role === Roles.REGISTERED && user.is_active !== true) &&
-                <div className={"text-info"} style={{marginTop: '30px'}}>
-                    Ваш акаунт не активований, зверніться до адміністратора</div>}
-        </div>
+                    )
+                })
+                }
+                {user.role !== Roles.REGISTERED &&
+                    <div className={"text-info"} style={{marginTop: '30px'}}>
+                        Для перегляду списку потрібно увійти</div>}
+                {(user.role === Roles.REGISTERED && user.is_active !== true) &&
+                    <div className={"text-info"} style={{marginTop: '30px'}}>
+                        Ваш акаунт не активований, зверніться до адміністратора</div>}
+            </div>
+        </>
     )
 }
 

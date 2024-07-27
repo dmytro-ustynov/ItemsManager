@@ -1,8 +1,9 @@
 import React, {createContext} from 'react';
 import {useLocalObservable} from "mobx-react";
-import {BASE_URL, FIELDS, SEARCH_URL} from "../utils/constants";
+import {BASE_URL, FIELDS, ITEMS_PER_PAGE, SEARCH_URL} from "../utils/constants";
 import {SERVICE_TO_NUMBER} from "../generated_constants";
 import {fetcher} from "../utils/fetch_utils";
+import {countServiceNumbers} from "../utils/counters";
 
 export const StoreContext = createContext({});
 
@@ -14,10 +15,36 @@ export const StoreProvider = (({children}) => {
             pending: false,
             message: "",
             alertLevel: "info",
+            counters: {},
+            pagination: {
+                currentPage: 1,
+                itemsPerPage: ITEMS_PER_PAGE,
+                hasNextPage: false,
+                hasPreviousPage: false,
+                totalPages: 0,
+            },
 
             setItems(items) {
                 this.__allItems = items
-                this.items = items
+                // this.items = items
+                this.pagination.totalPages = Math.ceil(items.length / this.pagination.itemsPerPage);
+                this.updatePagination();
+                this.counters = countServiceNumbers(items)
+                this.counters.total = items.length
+            },
+            updatePagination() {
+                const startIndex = (this.pagination.currentPage - 1) * this.pagination.itemsPerPage;
+                const endIndex = startIndex + this.pagination.itemsPerPage;
+                this.items = this.__allItems.slice(startIndex, endIndex);
+                this.pagination.hasPreviousPage = this.pagination.currentPage > 1;
+                this.pagination.hasNextPage = this.pagination.currentPage < this.pagination.totalPages;
+            },
+            setPage(page) {
+                if (page < 1 || page > this.pagination.totalPages) {
+                    return;
+                }
+                this.pagination.currentPage = page;
+                this.updatePagination();
             },
             async fetchItems() {
                 const url = BASE_URL + SEARCH_URL
@@ -109,6 +136,7 @@ export const StoreProvider = (({children}) => {
                     }
                     return passNoService && passService && passCategories && passYoungerThan && passOlderThan && passSearch;
                 });
+                this.counters.filtered = this.items.length
             },
             searchItems(search) {
                 this.items = this.__allItems.filter((item) => {
@@ -125,10 +153,12 @@ export const StoreProvider = (({children}) => {
 
             dropFilters() {
                 this.items = this.__allItems
+                this.counters.filtered = null
             },
             deleteItem(itemId) {
                 this.__allItems = this.__allItems.filter((item) => item._id !== itemId);
                 this.items = this.items.filter((item) => item._id !== itemId);
+                this.counters.total -= 1
             },
 
             setMessage(message, level = null) {

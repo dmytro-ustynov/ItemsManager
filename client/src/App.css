@@ -67,6 +67,14 @@
     /*background-color: var(--color-main-background);*/
     min-height: 85vh;
 }
+.pagination-block {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-main-background);
+    min-height: 40px;
+}
 
 .search-handlers {
     display: flex;
@@ -77,12 +85,11 @@
     align-items: baseline;
     column-gap: 0.5rem;
     background-color: var(--color-main-background);
-    padding: 0 0 10px;
 }
 
 .info-total {
     /*color: wheat;*/
-    padding: 10px 0;
+    padding: 5px 0;
 }
 
 .item-title {
@@ -95,6 +102,7 @@
     display: flex;
     width: 80%;
     min-width: 100vmin;
+    column-gap: 0.6vmin;
 }
 
 .page-placeholder {
