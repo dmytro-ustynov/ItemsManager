@@ -84,4 +84,6 @@ class User:
                     user_id=str(self.user_id),
                     is_active=self.is_active,
                     created_at=self.created_at,
-                    updated_at=self.updated_at)
+                    createdAt=self.created_at.strftime('%H:%M:%S ; %h %d,  %Y'),
+                    updated_at=self.updated_at,
+                    updatedAt=self.updated_at.strftime('%H:%M:%S ; %h %d,  %Y'))

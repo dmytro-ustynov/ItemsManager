@@ -134,6 +134,13 @@ export default function Login({isOpen = false}) {
         setAnchorEl(null);
     }
 
+    const accountClick = () =>{
+        if (user.username === 'root'){
+            navigate('/settings')
+        }
+        handleClose()
+    }
+
     return (<>
             <Menu id="basic-menu"
                   anchorEl={anchorEl}
@@ -147,7 +154,7 @@ export default function Login({isOpen = false}) {
                         <ListItemIcon><LoginIcon/> </ListItemIcon>
                         <ListItemText>Login</ListItemText>
                     </MenuItem>}
-                <MenuItem onClick={handleClose} disabled={user.role === Roles.ANONYMOUS}>
+                <MenuItem onClick={accountClick} disabled={user.role === Roles.ANONYMOUS}>
                     {user.role === Roles.ANONYMOUS ? (<><ListItemIcon><ManageAccountsIcon/> </ListItemIcon>
                             <ListItemText>My account</ListItemText></>) :
                         <><ListItemIcon>{user.is_active === true ? <ManageAccountsIcon/> :

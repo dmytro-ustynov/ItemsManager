@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import Page404 from "./pages/Page404";
 import ItemPage from "./pages/ItemPage";
 import {StoreProvider} from "./store/store";
+import RootUserPage from "./pages/RootUserPage";
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
                     <Route path="/postanova" element={<DocPage file={'postanova'}/>}/>
                     <Route path="/help" element={<HelpPage/>}/>
                     <Route path="/item" element={<ItemPage/>}/>
+                    <Route path="/settings" element={<RootUserPage/>}/>
                     <Route path="*" element={<Page404/>}/>
                 </Routes>
             </div>

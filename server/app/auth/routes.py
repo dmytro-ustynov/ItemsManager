@@ -89,10 +89,10 @@ async def logout(response: Response):
     return {"msg": "logout OK"}
 
 
-@router.get("/user/unactivated_users/", dependencies=[Depends(get_root_user)],
-            summary="Get the list of unactivated users, only for root user")
-async def get_unactivated_users():
-    unactivated_users = MM.query(User).find(dict(is_active=False))
+@router.get("/user/all", dependencies=[Depends(get_root_user)],
+            summary="Get the list of all users, only for root user")
+async def get_all_users():
+    unactivated_users = MM.query(User).find({})
     return {"users": [u.to_dict() for u in unactivated_users]}
 
 
