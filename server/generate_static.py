@@ -92,7 +92,9 @@ def generate_js(config, output_path):
 
     js_content += f"export const FILTERS = {{ \n{filter_lines_str}\n}};\n"
     js_content += f"export const defaultFilters = {{  \n{default_filters_lines_str} \n}};\n"
-    js_content += f"export const auxFilters = {{  \n{aux_filters_lines_str} \n}};"
+    js_content += f"export const auxFilters = {{  \n{aux_filters_lines_str} \n}};\n"
+
+    js_content += f"export const MAIN_TITLE = '{config['main_title']}';"
 
     with open(output_path, 'w') as file:
         file.write(js_content)

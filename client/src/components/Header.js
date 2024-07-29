@@ -1,5 +1,6 @@
 import logoImage from "../images/logo_640.jpg";
 import HeaderMenu from "./HeaderMenu";
+import {MAIN_TITLE} from "../generated_constants";
 
 export default function Header(){
     return (
@@ -7,7 +8,7 @@ export default function Header(){
             <div className="header-left-menu" />
             <img src={logoImage} alt={"logo"} className={"image-logo"}
                  onClick={()=>{window.location.replace("/")}}/>
-            <h1>Mайно кафедри </h1>
+            <h1>{MAIN_TITLE}</h1>
             <HeaderMenu />
         </header>
     )
