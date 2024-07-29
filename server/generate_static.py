@@ -8,6 +8,16 @@ LETTERS_MAPPER = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': '
                   'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ь': "'", 'ю': 'ju', 'я': 'ja'}
 
 
+def create_server_folders():
+    folders = [os.path.join(os.getcwd(), 'data'),
+               os.path.join(os.getcwd(), 'data', 'logs'),
+               os.path.join(os.getcwd(), 'data', 'qr')]
+    for folder in folders:
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+            print('Created folder: ', folder)
+
+
 def translit(text):
     result = ''
     for char in text:
@@ -90,6 +100,7 @@ def generate_js(config, output_path):
 
 
 cfg = read_config('config.yaml')
+create_server_folders()
 print(f'Generating css in {os.getcwd()}...')
 generate_css(cfg, os.path.join(env('OUT_PATH', 'shared'), 'generated.css'))
 print('Generating js... ')

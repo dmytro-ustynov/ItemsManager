@@ -24,8 +24,12 @@ export const helpMessages = {
         "EN": "You may use built-in swagger to create root user. Go to "
     },
     m1_1: {
-        "UA": "Створіть користувача, натисніть 'Try it out' та впишіть імя \"root\" та бажаний пароль. Це можна зробити лише раз, тому запамʼятайте пароль root користувача, він знадобиться Вам для активації нових користувачів",
-        "EN": "Create user using this endpoint, Press 'Try it out'  and write username \"root\" and password as json. Remember the root password, you will need it to approve other users."
+        "UA": "Створіть користувача, натисніть 'Try it out' та впишіть імя \"root\" та бажаний пароль. Це можна зробити лише раз, тому запамʼятайте пароль root користувача, він знадобиться Вам для налаштувань нових користувачів. ",
+        "EN": "Create user using this endpoint, Press 'Try it out'  and write username \"root\" and password as json. Remember the root password, you will need it to manage other users. "
+    },
+    m1_2:{
+        "UA": "Тільки root користувач має доступ до сторінки налаштувань.",
+        "EN": "Only Root user has access to the settings page."
     },
     m3_list: {
         "UA": ["Найменування", "Інвентарний номер", "Служба"],

@@ -8,9 +8,11 @@ export default function HelpContent({lang}) {
             <Typography variant="h5" id="#Title">{helpMessages.t1[lang]}</Typography>
             <Typography variant="h6" id="#Chapter1">{helpMessages.c1[lang]}</Typography>
             <p className="help-text-paragraph">{helpMessages.m1[lang]}
-                <a href={`${BASE_URL}/docs#/user/user_signup_user_signup_post.`}>signup</a>.
+                <a href={`${BASE_URL}/docs#/user/user_signup_user_signup_post.`}>signup</a>.&nbsp;
                 {helpMessages.m1_1[lang]}</p>
             <img src={img1} alt="" width="50%"/>
+
+            <p className="help-text-paragraph">{helpMessages.m1_2[lang]}</p>
 
             <Typography variant="h6" id="#Chapter2">{helpMessages.c2[lang]}</Typography>
             <p className="help-text-paragraph">{helpMessages.m2_1[lang]}</p>

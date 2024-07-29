@@ -1,7 +1,7 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import React, {useState} from "react";
-import HelpContentEN from "../components/HelpContent";
+import HelpContent from "../components/HelpContent";
 
 
 export default function HelpPage() {
@@ -27,7 +27,7 @@ export default function HelpPage() {
             </div>
 
             <div style={{minHeight: "80vh"}}>
-                <HelpContentEN lang={lang}/>
+                <HelpContent lang={lang}/>
             </div>
             <Footer/>
         </>
