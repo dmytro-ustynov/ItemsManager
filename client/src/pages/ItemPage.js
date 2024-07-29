@@ -1,6 +1,6 @@
-import {Link, useNavigate, useSearchParams} from 'react-router-dom';
+import {useNavigate, useSearchParams} from 'react-router-dom';
 import {observer} from "mobx-react";
-import React, {useContext, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import Collapsible from "react-collapsible";
 import ItemCaption from "../components/ItemCaption";
 import ItemInfo from "../components/ItemInfo";
@@ -34,7 +34,7 @@ function ItemPage() {
     const {fields, setFields} = store
     const navigate = useNavigate();
 
-    const getItem = async () => {
+    const getItem = useCallback(async () => {
         const url = BASE_URL + `/items/${itemId}`
         const data = await fetcher({url, method: 'GET', credentials: true})
         if (!!data.item) {
@@ -43,7 +43,7 @@ function ItemPage() {
         } else {
             setItem(null)
         }
-    }
+    }, [fields.length, itemId, setFields])
 
     useEffect(() => {
         if (!!itemId && user.role !== Roles.ANONYMOUS) {
@@ -62,9 +62,9 @@ function ItemPage() {
             }
         }
         setQrURL(`${QRCODE_URL}/${itemId}`)
-    }, [itemId, user.role]);
+    }, [item, itemId, user.role, getItem]);
 
-     const openLoginForm = () => {
+    const openLoginForm = () => {
         dispatch({type: authTypes.OPEN_LOGIN_FORM})
     };
 
@@ -114,8 +114,8 @@ function ItemPage() {
                     </div>
                 </div> : <div className="page-placeholder">
                     <div className="text-info">{errorMessage}
-                    {user.role !== Roles.REGISTERED &&
-                        <span className="as-anchor" onClick={openLoginForm}>увійти</span>}
+                        {user.role !== Roles.REGISTERED &&
+                            <span className="as-anchor" onClick={openLoginForm}>увійти</span>}
                     </div>
                 </div>
             }

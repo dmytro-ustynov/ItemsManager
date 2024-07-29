@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import Collapsible from "react-collapsible";
 import ItemInfo from "./ItemInfo";
 import ItemCaption from "./ItemCaption";
@@ -23,13 +23,13 @@ function ItemList() {
     const dispatch = useAuthDispatch()
     const navigate = useNavigate();
 
-    const getItems = async () => {
+    const getItems = useCallback(async () => {
         let getUrl = BASE_URL + SEARCH_URL
         if (user.role === "registered" && user.is_active === true) {
             console.debug('fetching: ' + getUrl)
             startRequest()
             const data = await fetcher({url: getUrl, method: "GET", credentials: true})
-            if (!!data.items) {
+            if (data && !!data.items) {
                 const foundItems = await data.items || []
                 const fields = await data.fields || []
                 setItems(foundItems)
@@ -42,13 +42,14 @@ function ItemList() {
         } else {
             setItems([])
         }
-    }
+    }, [finishRequest, setFields, setItems, startRequest, user.is_active, user.role])
+
     useEffect(() => {
         if (user.role !== Roles.REGISTERED) {
             sessionStorage.removeItem('redirectTo')
         }
         getItems()
-    }, [store, user.role])
+    }, [store, user.role, getItems])
 
     const openLoginForm = () => {
         dispatch({type: authTypes.OPEN_LOGIN_FORM})

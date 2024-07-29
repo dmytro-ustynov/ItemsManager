@@ -1,9 +1,8 @@
 import logoImage from "../images/logo_640.jpg";
 import Footer from "../components/Footer";
-import React, {useContext, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 import MessageHandler from "../components/MessageHandler";
-import {useAuthState} from "../components/auth/context";
 import {observer} from "mobx-react";
 import {fetcher} from "../utils/fetch_utils";
 import {ALERT_LEVEL, BASE_URL, REFRESH_TOKEN_URl} from "../utils/constants";
@@ -22,8 +21,6 @@ import InputAdornment from "@mui/material/InputAdornment";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 
 function RootUserPage() {
-    const state = useAuthState()
-    const user = state.user
     const [allowed, setAllowed] = useState(false)
     const [users, setUsers] = useState([])
     const [confirmDialog, setConfirmDialog] = useState(false)
@@ -37,45 +34,45 @@ function RootUserPage() {
     const store = useContext(StoreContext)
     const {setMessage, setAlertLevel} = store
 
-    const checkIsRoot = async () => {
-        const url = BASE_URL + REFRESH_TOKEN_URl
+    const checkIsRoot = useCallback(async () => {
+        const url = BASE_URL + REFRESH_TOKEN_URl;
         const data = await fetcher({url, method: "GET", credentials: true});
-        const userData = data.user
-        if (!!userData && user.username === 'root') {
-            setAllowed(true)
+        const userData = data.user;
+        if (!!userData && userData.username === 'root') {
+            setAllowed(true);
         } else {
-            setAllowed(false)
+            setAllowed(false);
         }
-    }
+    }, []);
 
-    const getUsers = async () => {
-        const url = BASE_URL + '/user/all'
+    const getUsers = useCallback(async () => {
+        const url = BASE_URL + '/user/all';
         const data = await fetcher({url, method: "GET", credentials: true});
         if (!!data.users) {
-            setUsers(data.users)
+            setUsers(data.users);
         }
-    }
+    }, []);
 
-    const getFilesCount = async () => {
-        const url = BASE_URL + '/files/count'
-        const data = await fetcher({url, method: "GET", credentials: true})
-        if (data.result === true){
-            setFilesCount(data.count)
+    const getFilesCount = useCallback(async () => {
+        const url = BASE_URL + '/files/count';
+        const data = await fetcher({url, method: "GET", credentials: true});
+        if (data.result === true) {
+            setFilesCount(data.count);
         }
-    }
+    }, []);
 
-    const clearSystemFolder = async()=>{
+    const clearSystemFolder = async () => {
         const url = BASE_URL + '/files/clear_yesterday_files'
         const data = await fetcher({url, method: "PUT", credentials: true})
-        if (data.result === true){
+        if (data.result === true) {
             setMessage(data.details)
         }
     }
     useEffect(() => {
-        checkIsRoot()
-        getUsers()
-        getFilesCount()
-    }, [])
+        checkIsRoot();
+        getUsers();
+        getFilesCount();
+    }, [checkIsRoot, getUsers, getFilesCount]);
 
     const openActivateConfirmation = (username, user_id) => {
         setConfirmMessage(`Ви впевнені що хочете активувати  користувача "${username}"?`)
@@ -208,9 +205,10 @@ function RootUserPage() {
                         }</tbody>
                     </table>
 
-                    <div><a href={BASE_URL +'/docs#/FILES'}>files</a></div>
-                    <div>В папці експорту знайдено {filesCount} xls  файлів.</div>
-                    <button title="Видалити файли крім створених сьогодні" onClick={clearSystemFolder}> Очистити папку</button>
+                    <div><a href={BASE_URL + '/docs#/FILES'}>files</a></div>
+                    <div>В папці експорту знайдено {filesCount} xls файлів.</div>
+                    <button title="Видалити файли крім створених сьогодні" onClick={clearSystemFolder}> Очистити папку
+                    </button>
                 </div>
                 <Dialog open={confirmDialog} onClose={closeConfirmDialog}>
                     <DialogTitle>
