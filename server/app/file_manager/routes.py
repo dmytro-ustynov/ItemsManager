@@ -50,6 +50,19 @@ async def validate_xls(file: UploadFile):
         return False
 
 
+@router.get('/count', summary="Get count of xls temporary files in a data folder",
+            dependencies=[Depends(get_root_user)])
+async def get_files_count():
+    try:
+        result, count = FileManager.count_data_files()
+        if result:
+            return {'result': result, 'count': count}
+        return {'result': False}
+    except Exception as e:
+        logger.error(str(e))
+        return {'result': False}
+
+
 @router.put('/clear_yesterday_files',
             summary="delete xls files from data folder",
             dependencies=[Depends(get_root_user)])

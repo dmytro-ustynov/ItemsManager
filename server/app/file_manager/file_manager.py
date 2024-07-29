@@ -13,7 +13,7 @@ class FileExtension:
 
 class FileManager:
     XLS_CONTENT_TYPES = (
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel')
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel')
 
     @staticmethod
     def create_file(items, extension):
@@ -154,6 +154,20 @@ class FileManager:
                 if time() - os.path.getmtime(abs_path) > 24 * 3600:
                     os.remove(abs_path)
                     count += 1
+            return True, count
+        except Exception as e:
+            return False, str(e)
+
+    @staticmethod
+    def count_data_files():
+        folder = os.path.join(config("FILE_FOLDER", os.path.join(os.getcwd(), '../data')))
+        file_names = list(os.walk(folder))[0][2]
+        count = 0
+        try:
+            for f in file_names:
+                if not 'xls' in f.split('.')[-1]:
+                    continue
+                count += 1
             return True, count
         except Exception as e:
             return False, str(e)

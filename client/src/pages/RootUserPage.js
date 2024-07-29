@@ -33,6 +33,7 @@ function RootUserPage() {
     const [showPassword, setShowPassword] = useState(null);
     const [password, setPassword] = useState('')
     const [errorMsg, setErrorMsg] = useState(null)
+    const [filesCount, setFilesCount] = useState(0)
     const store = useContext(StoreContext)
     const {setMessage, setAlertLevel} = store
 
@@ -54,9 +55,26 @@ function RootUserPage() {
             setUsers(data.users)
         }
     }
+
+    const getFilesCount = async () => {
+        const url = BASE_URL + '/files/count'
+        const data = await fetcher({url, method: "GET", credentials: true})
+        if (data.result === true){
+            setFilesCount(data.count)
+        }
+    }
+
+    const clearSystemFolder = async()=>{
+        const url = BASE_URL + '/files/clear_yesterday_files'
+        const data = await fetcher({url, method: "PUT", credentials: true})
+        if (data.result === true){
+            setMessage(data.details)
+        }
+    }
     useEffect(() => {
         checkIsRoot()
         getUsers()
+        getFilesCount()
     }, [])
 
     const openActivateConfirmation = (username, user_id) => {
@@ -145,7 +163,7 @@ function RootUserPage() {
                     <h1> Налаштування </h1>
                     <div className="header-right-menu"/>
                 </header>
-                <div className="">
+                <div className="page-placeholder">
                     <a href={BASE_URL + '/docs'}>users</a>
                     <table>
                         <tbody>
@@ -190,6 +208,9 @@ function RootUserPage() {
                         }</tbody>
                     </table>
 
+                    <div><a href={BASE_URL +'/docs#/FILES'}>files</a></div>
+                    <div>В папці експорту знайдено {filesCount} xls  файлів.</div>
+                    <button title="Видалити файли крім створених сьогодні" onClick={clearSystemFolder}> Очистити папку</button>
                 </div>
                 <Dialog open={confirmDialog} onClose={closeConfirmDialog}>
                     <DialogTitle>
