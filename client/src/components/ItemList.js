@@ -7,11 +7,12 @@ import LinearProgress from '@mui/material/LinearProgress';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import {StoreContext} from "../store/store";
 import {observer} from "mobx-react";
-import {Roles, useAuthState} from "./auth/context";
+import {Roles, useAuthDispatch, useAuthState} from "./auth/context";
 import {useNavigate} from "react-router-dom";
 import {BASE_URL, SEARCH_URL} from "../utils/constants";
 import {fetcher} from "../utils/fetch_utils";
 import PaginationComponent from "./Pagination";
+import {authTypes} from "./auth/reducer";
 
 function ItemList() {
     const store = useContext(StoreContext)
@@ -19,6 +20,7 @@ function ItemList() {
     const [checkedCounter, setCheckedCounter] = useState(0)
     const state = useAuthState()
     const user = state.user
+    const dispatch = useAuthDispatch()
     const navigate = useNavigate();
 
     const getItems = async () => {
@@ -47,6 +49,10 @@ function ItemList() {
         }
         getItems()
     }, [store, user.role])
+
+    const openLoginForm = () => {
+        dispatch({type: authTypes.OPEN_LOGIN_FORM})
+    };
     const handleCheckBoxClick = (event) => {
         let counter = checkedCounter
         if (event.target.checked === true) {
@@ -94,7 +100,8 @@ function ItemList() {
                 }
                 {user.role !== Roles.REGISTERED &&
                     <div className={"text-info"} style={{marginTop: '30px'}}>
-                        Для перегляду списку потрібно увійти</div>}
+                        Для перегляду списку потрібно <span className="as-anchor" onClick={openLoginForm}>увійти</span>
+                    </div>}
                 {(user.role === Roles.REGISTERED && user.is_active !== true) &&
                     <div className={"text-info"} style={{marginTop: '30px'}}>
                         Ваш акаунт не активований, зверніться до адміністратора</div>}

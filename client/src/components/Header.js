@@ -1,5 +1,5 @@
 import logoImage from "../images/logo_640.jpg";
-import Login from "./Login";
+import HeaderMenu from "./HeaderMenu";
 
 export default function Header(){
     return (
@@ -8,7 +8,7 @@ export default function Header(){
             <img src={logoImage} alt={"logo"} className={"image-logo"}
                  onClick={()=>{window.location.replace("/")}}/>
             <h1>Mайно кафедри </h1>
-            <Login />
+            <HeaderMenu />
         </header>
     )
 }

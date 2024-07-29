@@ -1,10 +1,18 @@
 import logoImage from "../images/logo_640.jpg";
-import Login from "../components/Login";
+import HeaderMenu from "../components/HeaderMenu";
 import Footer from "../components/Footer";
-import React from "react";
+import React, {useEffect} from "react";
 import MessageHandler from "../components/MessageHandler";
+import {authTypes} from "../components/auth/reducer";
+import {useAuthDispatch} from "../components/auth/context";
 
-function LoginPage({file}) {
+function LoginPage() {
+    const dispatch = useAuthDispatch()
+
+    useEffect(() => {
+        dispatch({type: authTypes.OPEN_LOGIN_FORM})
+    }, [dispatch]);
+
     return (
         <>
             <header className="top-header">
@@ -14,7 +22,7 @@ function LoginPage({file}) {
                          window.location.replace("/")
                      }}/>
                 <h1>Mайно кафедри </h1>
-                <Login isOpen={true}/>
+                <HeaderMenu/>
             </header>
             <div className="page-placeholder"/>
             <MessageHandler/>

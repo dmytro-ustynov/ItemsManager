@@ -14,10 +14,11 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 import UpdateIcon from '@mui/icons-material/Update';
-import {Roles, useAuthState} from "../components/auth/context";
+import {Roles, useAuthDispatch, useAuthState} from "../components/auth/context";
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
 import MessageHandler from "../components/MessageHandler";
 import {StoreContext} from "../store/store";
+import {authTypes} from "../components/auth/reducer";
 
 function ItemPage() {
     const [searchParams] = useSearchParams();
@@ -28,6 +29,7 @@ function ItemPage() {
 
     const state = useAuthState()
     const user = state.user
+    const dispatch = useAuthDispatch()
     const store = useContext(StoreContext)
     const {fields, setFields} = store
     const navigate = useNavigate();
@@ -48,7 +50,7 @@ function ItemPage() {
             getItem()
         }
         if (user.role === Roles.ANONYMOUS) {
-            setErrorMessage('Для перегляду необхідно увійти')
+            setErrorMessage('Для перегляду необхідно ')
             const redirectUrl = window.location.pathname + window.location.search
             sessionStorage.setItem('redirectTo', redirectUrl)
         } else {
@@ -61,6 +63,10 @@ function ItemPage() {
         }
         setQrURL(`${QRCODE_URL}/${itemId}`)
     }, [itemId, user.role]);
+
+     const openLoginForm = () => {
+        dispatch({type: authTypes.OPEN_LOGIN_FORM})
+    };
 
     return (
         <>
@@ -107,8 +113,10 @@ function ItemPage() {
                         </div>
                     </div>
                 </div> : <div className="page-placeholder">
-                    <div className="text-info">{errorMessage}</div>
-                    {user.role !== Roles.REGISTERED && <Link to="/login">Login</Link>}
+                    <div className="text-info">{errorMessage}
+                    {user.role !== Roles.REGISTERED &&
+                        <span className="as-anchor" onClick={openLoginForm}>увійти</span>}
+                    </div>
                 </div>
             }
             <MessageHandler/>

@@ -51,12 +51,15 @@ export const initialState = {
     user: "" || user,
     accessToken: "" || token,
     loading: false,
+    isOpenLoginForm: false,
     errorMessageLogin: null,
     errorMessageRegister: null,
 };
 
 export const authTypes = {
     REQUEST_LOGIN: 'REQUEST_LOGIN',
+    OPEN_LOGIN_FORM: 'OPEN_LOGIN_FORM',
+    CLOSE_LOGIN_FORM: 'CLOSE_LOGIN_FORM',
     LOGIN_SUCCESS: 'LOGIN_SUCCESS',
     LOGIN_ERROR: 'LOGIN_ERROR',
     LOGOUT: 'LOGOUT',
@@ -88,6 +91,8 @@ export const AuthReducer = (initialState, action) => {
                 errorMessageLogin: action.error,
             };
         case authTypes.LOGOUT:
+            localStorage.removeItem(CURRENT_USER_KEY);
+            localStorage.removeItem(ACCESS_TOKEN_KEY);
             return {
                 ...initialState,
                 // user: null,
@@ -97,6 +102,16 @@ export const AuthReducer = (initialState, action) => {
                 },
                 accessToken: null,
                 errorMessageLogin: null,
+            };
+        case authTypes.OPEN_LOGIN_FORM:
+            return {
+                ...initialState,
+                isOpenLoginForm: true
+            };
+        case authTypes.CLOSE_LOGIN_FORM:
+            return {
+                ...initialState,
+                isOpenLoginForm: false
             };
         case authTypes.REQUEST_REGISTER:
             return {
