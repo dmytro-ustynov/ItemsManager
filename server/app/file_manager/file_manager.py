@@ -8,7 +8,7 @@ from server.app.items.item import FieldNames
 
 
 class FileExtension:
-    xls = "xls"
+    xls = "xlsx"
     csv = "csv"
     json = "json"
 

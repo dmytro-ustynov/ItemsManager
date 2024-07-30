@@ -10,7 +10,7 @@ import {
     TextField
 } from "@mui/material";
 import {useContext, useState} from "react";
-import {BASE_URL, EXPORT_URL} from "../utils/constants";
+import {ALERT_LEVEL, BASE_URL, EXPORT_URL} from "../utils/constants";
 import {fetcher} from "../utils/fetch_utils";
 import excelIcon from "../images/excel-42-32.png";
 import filterIcon from "../images/filter-44-32.png";
@@ -21,7 +21,7 @@ import {auxFilters, defaultFilters, FILTERS, SERVICES} from "../generated_consta
 
 function SearchFilterBlock() {
     const store = useContext(StoreContext)
-    const {items, dropFilters, filterItems} = store
+    const {items, dropFilters, filterItems, setMessage, setAlertLevel} = store
 
     const [searchString, setSearchString] = useState("")
     const [filterDialogOpen, setFilterDialogOpen] = useState(false)
@@ -42,20 +42,41 @@ function SearchFilterBlock() {
         }
     }
     const handleExportButton = async () => {
-        let item_ids = []
-        items.map((i) => item_ids.push(i._id))
-        const url = BASE_URL + EXPORT_URL
-        const result = await fetcher({
-            url, method: "POST", credentials: true,
-            payload: {item_ids: item_ids}, asFile: true
-        })
-        const blobUrl = window.URL.createObjectURL(result)
-        const anchor = document.createElement("a")
-        const d = new Date()
-        let filename = `Items_${d.toLocaleDateString().replaceAll('/', '-')}.xls`
-        anchor.href = blobUrl
-        anchor.download = filename
-        anchor.click()
+        const url = BASE_URL + EXPORT_URL;
+        const date = new Date().toLocaleDateString().replaceAll('/', '-');
+        let result, filename, itemIds;
+
+        const fetchOptions = {
+            url,
+            method: "POST",
+            credentials: true,
+            asFile: true,
+        };
+
+        if (store.counters.filtered > 0) {
+            // Export filtered
+            itemIds = items.map(item => item._id);
+            filename = `Items_search_${searchString}_${date}.xlsx`;
+        } else {
+            // Export all
+            fetchOptions.url =`${url}?get_all=true`
+            itemIds = []
+            filename = `All_items_${date}.xlsx`;
+        }
+        result = await fetcher({
+            ...fetchOptions, payload: {item_ids: itemIds}
+        });
+        if (!!result && result.type === 'application/vnd.ms-excel') {
+            const blobUrl = window.URL.createObjectURL(result)
+            const anchor = document.createElement("a")
+            anchor.href = blobUrl
+            anchor.download = filename
+            anchor.click()
+        } else {
+            console.log(result)
+            setAlertLevel(ALERT_LEVEL.WARNING)
+            setMessage('Error downloading file')
+        }
     }
     const handleFilterModalDialog = () => {
         setFilterDialogOpen(true)
