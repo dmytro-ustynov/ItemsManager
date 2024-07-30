@@ -1,11 +1,11 @@
 import {useNavigate, useSearchParams} from 'react-router-dom';
 import {observer} from "mobx-react";
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Collapsible from "react-collapsible";
 import ItemCaption from "../components/ItemCaption";
 import ItemInfo from "../components/ItemInfo";
 import {fetcher} from "../utils/fetch_utils";
-import {BASE_URL, QRCODE_URL} from "../utils/constants";
+import {BASE_URL, FIELDS, QRCODE_URL} from "../utils/constants";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import {Typography} from "@mui/material";
@@ -34,7 +34,7 @@ function ItemPage() {
     const {fields, setFields} = store
     const navigate = useNavigate();
 
-    const getItem = useCallback(async () => {
+    const getItem = async () => {
         const url = BASE_URL + `/items/${itemId}`
         const data = await fetcher({url, method: 'GET', credentials: true})
         if (!!data.item) {
@@ -43,7 +43,7 @@ function ItemPage() {
         } else {
             setItem(null)
         }
-    }, [fields.length, itemId, setFields])
+    }
 
     useEffect(() => {
         if (!!itemId && user.role !== Roles.ANONYMOUS) {
@@ -62,11 +62,24 @@ function ItemPage() {
             }
         }
         setQrURL(`${QRCODE_URL}/${itemId}`)
-    }, [item, itemId, user.role, getItem]);
+    }, [itemId, user.role]);
 
     const openLoginForm = () => {
         dispatch({type: authTypes.OPEN_LOGIN_FORM})
     };
+
+    const downloadTagFile = async() =>{
+        const url = BASE_URL +`/files/download_tag/${itemId}`
+        const result = await fetcher({
+            url, method: "GET", credentials: true, asFile: true
+        })
+        const blobUrl = window.URL.createObjectURL(result)
+        const anchor = document.createElement("a")
+        let filename = `Бирка ${item[FIELDS.NAME]}.docx`
+        anchor.href = blobUrl
+        anchor.download = filename
+        anchor.click()
+    }
 
     return (
         <>
@@ -91,16 +104,16 @@ function ItemPage() {
                         <div className="item-table"><Typography
                             variant="h6">Згенерувати</Typography>
                             <div>Акт технічного стану
-                                <IconButton fontSize="small">
-                                    <DownloadIcon color='primary'/>
+                                <IconButton fontSize="small" disabled>
+                                    <DownloadIcon color='default'/>
                                 </IconButton></div>
-                            <div>Накладна на видачу<IconButton fontSize="small">
-                                <DownloadIcon color="primary"/>
+                            <div>Накладна на видачу<IconButton fontSize="small" disabled>
+                                <DownloadIcon color="default"/>
                             </IconButton></div>
-                            <div>Акт списання<IconButton fontSize="small">
-                                <DownloadIcon color="primary"/>
+                            <div>Акт списання<IconButton fontSize="small" disabled>
+                                <DownloadIcon color="default"/>
                             </IconButton></div>
-                            <div>Бірка<IconButton fontSize="small">
+                            <div>Бірка<IconButton fontSize="small" onClick={downloadTagFile}>
                                 <DownloadIcon color="primary"/>
                             </IconButton></div>
                             <Typography

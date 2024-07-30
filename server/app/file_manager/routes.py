@@ -1,10 +1,14 @@
-# from bson import ObjectId
+import datetime
 import aiofiles
+from bson import ObjectId
+from bson.errors import InvalidId
 from fastapi import APIRouter, Depends
 from fastapi import UploadFile
-from server.app.dependencies import logger, MM, get_active_user, get_root_user
+from fastapi.responses import FileResponse
+from server.app.dependencies import logger, MM, get_active_user, get_root_user, get_qr_image_path
 from server.app.file_manager.file_manager import FileManager
 from server.app.items.item import FieldNames,  Item
+from server.generate_static import read_config
 
 router = APIRouter(prefix='/files',
                    tags=['FILES'])
@@ -78,3 +82,28 @@ async def clear_yesterday_files():
     except Exception as e:
         logger.error(str(e))
         return {'result': False}
+
+
+@router.get('/download_tag/{item_id}', dependencies=[Depends(get_active_user)])
+async def download_item_tag_file(item_id: str):
+    cfg = read_config('config.yaml')
+    try:
+        item = MM.query(Item).get(_id=ObjectId(item_id))
+        item = item.to_dict()
+        today = datetime.datetime.now()
+        year = item.get(FieldNames.year) or item.get('year') or today.year
+        qr = get_qr_image_path(item_id)
+        context = {'name': item[FieldNames.name],
+                   'inventory': item.get(FieldNames.inventory_number, ''),
+                   'department': cfg.get('department_code', ''),
+                   'year': year,
+                   'qr': qr}
+        path = FileManager.generate_tag_file(context)
+        headers = {'Content-Disposition': f'attachment; filename="Tagfile.docx"'}
+        logger.info(f'Tag file created : {path}')
+        return FileResponse(path, headers=headers)
+    except InvalidId:
+        return {'result': False, 'details': 'invalid ID number'}
+    except Exception as e:
+        logger.error(str(e))
+        return {'result': False, 'details': 'error generating tagfile'}

@@ -2,6 +2,8 @@ import os
 from time import time
 from decouple import config
 import openpyxl
+from docx.shared import Mm
+from docxtpl import DocxTemplate, InlineImage
 from server.app.items.item import FieldNames
 
 
@@ -148,12 +150,11 @@ class FileManager:
         count = 0
         try:
             for f in file_names:
-                if not 'xls' in f.split('.')[-1]:
-                    continue
-                abs_path = os.path.join(folder, f)
-                if time() - os.path.getmtime(abs_path) > 24 * 3600:
-                    os.remove(abs_path)
-                    count += 1
+                if 'xls' in f.split('.')[-1] or 'docx' in f.split('.')[-1]:
+                    abs_path = os.path.join(folder, f)
+                    if time() - os.path.getmtime(abs_path) > 24 * 3600:
+                        os.remove(abs_path)
+                        count += 1
             return True, count
         except Exception as e:
             return False, str(e)
@@ -165,9 +166,21 @@ class FileManager:
         count = 0
         try:
             for f in file_names:
-                if not 'xls' in f.split('.')[-1]:
-                    continue
-                count += 1
+                if 'xls' in f.split('.')[-1] or 'docx' in f.split('.')[-1] :
+                    count += 1
             return True, count
         except Exception as e:
             return False, str(e)
+
+    @staticmethod
+    def generate_tag_file(context):
+        template = 'tag_file_tpl.docx'
+        filepath = FileManager.generate_filepath('docx')
+        doc = DocxTemplate(template)
+        img = context.get('qr')
+        qr_image = InlineImage(doc, image_descriptor=img, width=Mm(60), height=Mm(60))
+        context['qr'] = qr_image
+        # context['year'] = context.get('year')
+        doc.render(context)
+        doc.save(filepath)
+        return filepath

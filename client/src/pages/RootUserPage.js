@@ -1,6 +1,6 @@
 import logoImage from "../images/logo_640.jpg";
 import Footer from "../components/Footer";
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 import MessageHandler from "../components/MessageHandler";
 import {observer} from "mobx-react";
@@ -19,8 +19,11 @@ import {
 import {StoreContext} from "../store/store";
 import InputAdornment from "@mui/material/InputAdornment";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {useAuthState} from "../components/auth/context";
 
 function RootUserPage() {
+    const state = useAuthState()
+    const user = state.user
     const [allowed, setAllowed] = useState(false)
     const [users, setUsers] = useState([])
     const [confirmDialog, setConfirmDialog] = useState(false)
@@ -34,32 +37,32 @@ function RootUserPage() {
     const store = useContext(StoreContext)
     const {setMessage, setAlertLevel} = store
 
-    const checkIsRoot = useCallback(async () => {
-        const url = BASE_URL + REFRESH_TOKEN_URl;
+    const checkIsRoot = async () => {
+        const url = BASE_URL + REFRESH_TOKEN_URl
         const data = await fetcher({url, method: "GET", credentials: true});
-        const userData = data.user;
-        if (!!userData && userData.username === 'root') {
-            setAllowed(true);
+        const userData = data.user
+        if (!!userData && user.username === 'root') {
+            setAllowed(true)
         } else {
-            setAllowed(false);
+            setAllowed(false)
         }
-    }, []);
+    }
 
-    const getUsers = useCallback(async () => {
-        const url = BASE_URL + '/user/all';
+    const getUsers = async () => {
+        const url = BASE_URL + '/user/all'
         const data = await fetcher({url, method: "GET", credentials: true});
         if (!!data.users) {
-            setUsers(data.users);
+            setUsers(data.users)
         }
-    }, []);
+    }
 
-    const getFilesCount = useCallback(async () => {
-        const url = BASE_URL + '/files/count';
-        const data = await fetcher({url, method: "GET", credentials: true});
+    const getFilesCount = async () => {
+        const url = BASE_URL + '/files/count'
+        const data = await fetcher({url, method: "GET", credentials: true})
         if (data.result === true) {
-            setFilesCount(data.count);
+            setFilesCount(data.count)
         }
-    }, []);
+    }
 
     const clearSystemFolder = async () => {
         const url = BASE_URL + '/files/clear_yesterday_files'
@@ -69,10 +72,10 @@ function RootUserPage() {
         }
     }
     useEffect(() => {
-        checkIsRoot();
-        getUsers();
-        getFilesCount();
-    }, [checkIsRoot, getUsers, getFilesCount]);
+        checkIsRoot()
+        getUsers()
+        getFilesCount()
+    }, [])
 
     const openActivateConfirmation = (username, user_id) => {
         setConfirmMessage(`Ви впевнені що хочете активувати  користувача "${username}"?`)
@@ -206,7 +209,7 @@ function RootUserPage() {
                     </table>
 
                     <div><a href={BASE_URL + '/docs#/FILES'}>files</a></div>
-                    <div>В папці експорту знайдено {filesCount} xls файлів.</div>
+                    <div>В папці експорту знайдено {filesCount}  файлів (docx, xls).</div>
                     <button title="Видалити файли крім створених сьогодні" onClick={clearSystemFolder}> Очистити папку
                     </button>
                 </div>
