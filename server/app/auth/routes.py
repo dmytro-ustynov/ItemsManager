@@ -19,9 +19,8 @@ def user_signup(user: UserSchema):
         user = dict(username=mongo_user['username'],
                     user_id=mongo_user['user_id'],
                     is_active=mongo_user['is_active'])
-        res = sign_jwt(user)
-        res['result'] = True
-        return res
+        result = {"result": True, "user": user, "access_token": sign_jwt(user)}
+        return result
     else:
         return {'result': False}
 
