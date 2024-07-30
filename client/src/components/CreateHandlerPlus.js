@@ -15,6 +15,7 @@ import MenuItem from "@mui/material/MenuItem";
 import {fetcher} from "../utils/fetch_utils";
 import {ALERT_LEVEL, BASE_URL, CREATE_ITEM_URL} from "../utils/constants";
 import {StoreContext} from "../store/store";
+import {SERVICES} from "../generated_constants";
 
 export default function CreateHandlerPlus() {
     const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -108,10 +109,10 @@ export default function CreateHandlerPlus() {
                         value={service}
                         required
                         label="Служба *"
-                        onChange={handleServiceChange}
-                    >
-                        <MenuItem value={"СЗ"}>Служба звязку</MenuItem>
-                        <MenuItem value={"ВНЛЗ"}>ВНЛЗ</MenuItem>
+                        onChange={handleServiceChange}>
+                        {Object.keys(SERVICES).map(key => (
+                            <MenuItem value={SERVICES[key].alias.toUpperCase()}>{SERVICES[key].name}</MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
                 <Typography variant="h6" sx={{marginTop: '15px'}}>Необов'язково</Typography>

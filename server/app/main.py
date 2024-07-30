@@ -36,7 +36,7 @@ app.add_middleware(
 @app.get("/")
 def index():
     logger.info('Server running ok')
-    return {"server": "Items manager", "version": "1.02", "time": time()}
+    return {"server": "Items manager", "version": "1.2", "time": time()}
 
 
 if __name__ == '__main__':
