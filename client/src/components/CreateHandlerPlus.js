@@ -80,7 +80,6 @@ export default function CreateHandlerPlus() {
         setYear('')
     }
 
-
     return <div>
         <Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)}>
             <DialogTitle
@@ -111,7 +110,8 @@ export default function CreateHandlerPlus() {
                         label="Служба *"
                         onChange={handleServiceChange}>
                         {Object.keys(SERVICES).map(key => (
-                            <MenuItem value={SERVICES[key].alias.toUpperCase()}>{SERVICES[key].name}</MenuItem>
+                            <MenuItem key={key}
+                                      value={SERVICES[key].alias.toUpperCase()}>{SERVICES[key].name}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>
@@ -138,16 +138,14 @@ export default function CreateHandlerPlus() {
                         endIcon={<SaveIcon/>}
                         disabled={validateCreationForm()}> зберегти </Button>
             </DialogActions>
-
         </Dialog>
-        {
-            user.role === 'registered' && <Fab disabled={user.is_active !== true}
-                                               color="primary" title="Створити новий елемент"
-                                               aria-label="add" onClick={() => {
-                setCreateDialogOpen(true)
-            }}>
-                <AddIcon/>
-            </Fab>
+        {user.role === 'registered' && <Fab disabled={user.is_active !== true}
+                                            color="primary" title="Створити новий елемент"
+                                            aria-label="add" onClick={() => {
+            setCreateDialogOpen(true)
+        }}>
+            <AddIcon/>
+        </Fab>
         }
     </div>
 }

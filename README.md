@@ -124,6 +124,31 @@ _NOTE_:  It is absolutely required to create **"root"** user. Only users with "*
 
 "**admin**" user is active by default, has rights to add new items, edit notes, add fields to the item. But has no functionality to manage users or delete items as **root** user can. Any new user you create will be inactive by default. You should activate them manually from the **root** user account, and after activation they will have the same rights as **admin** user.
 
+<details>
+  <summary>Why do you need **root** and what **root** user can do?</summary>
+
+#### Root user features
+
+Only **root** user can perform these actions that other users can not:
+
+- activate or deactivate other users
+- delete other users
+- set user's passwords
+- delete items
+- deep edit items, including changing their name, service, editing existing fields etc.
+- clear server folder, where temp files for upload and download are saved on the backend
+
+#### How to enter  **root** page
+
+Being logged in as root user, click the "root" in the Account menu :
+![img6.png](images/img6.png)
+
+And you can reach **root** page.
+
+Being logged in as **root** you may also found the additional buttons for edit and delete items.
+
+</details>
+
 
 ####  9. Load items to DB. You may upload the collection to MongoDB Manually, or  load them from xls
    file using account of any active user.
