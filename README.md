@@ -78,7 +78,14 @@ Example:
 `python generate_static.py`
 
 This will create necessary server folders and add necessary files to the client part of the app - `generated.css` and `generated_constants.js` files.
-
+```bash
+python /server/generate_static.py 
+Generating css in /Users/dmytroustynov/programm/ItemsManager/server...
+file saved: ../client/src/generated.css
+Generating js... 
+file saved: ../client/src/generated_constants.js
+Static generated successfully!  
+```
 Every time you change the `config.yaml` file you should run this command to apply changes to the client part of the app.
 
 #### 6. Build and run containers with the command:

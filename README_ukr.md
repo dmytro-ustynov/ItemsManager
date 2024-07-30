@@ -77,6 +77,15 @@ openssl rand -base64 12
 
 Це створить необхідні серверні директорії і додасть необхідні налаштування для клієнтської частини програми, а саме файли  `generated.css` та `generated_constants.js`.
 
+```bash
+python /server/generate_static.py 
+Generating css in /Users/dmytroustynov/programm/ItemsManager/server...
+file saved: ../client/src/generated.css
+Generating js... 
+file saved: ../client/src/generated_constants.js
+Static generated successfully!  
+```
+
 Кожного разу як ви змінюєте файл `config.yaml` вам слід виконати цю команду, щоб застосувати зміни до клієнтської частини програми.
 
 #### 6. Створіть та підніміть контейнери за допомогою команди:

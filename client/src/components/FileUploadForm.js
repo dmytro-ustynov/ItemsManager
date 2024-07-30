@@ -17,7 +17,7 @@ export default function FileUploadForm({open, setOpen}) {
         const body = new FormData()
         body.append('file', file)
         const url = BASE_URL + '/files/bulk_upload'
-        const res = await fetcher({url, body})
+        const res = await fetcher({url, body, credentials:true})
         if (res.result === true) {
             setUploadResult(true)
             setUploadCount(res.total_items_created)
@@ -43,7 +43,7 @@ export default function FileUploadForm({open, setOpen}) {
             const body = new FormData()
             body.append('file', tempFile)
             const url = BASE_URL + '/files/validate_xls'
-            const res = await fetcher({url, body})
+            const res = await fetcher({url, body, credentials:true})
             if (res.result === true) {
                 setValidTitles(res.titles)
                 setTotalItems(res.total_rows)

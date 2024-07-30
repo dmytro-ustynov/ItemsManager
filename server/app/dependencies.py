@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import yaml
 from decouple import config
 from logging.config import dictConfig
 from fastapi import Depends, HTTPException
@@ -9,13 +8,14 @@ from fastapi import Depends, HTTPException
 from server.app.auth.jwt_bearer import JWTBearerWithPayload
 from server.app.dal.mongo_manager import MongoManager
 from server.app.qr_code_generator.qr_generator import QRCodeGenerator
+from server.app.utils.utils import read_config
 
 LOG_YAML = os.path.join(os.getcwd(), 'logger_config.yaml')
 
 CONFIG_YAML = os.path.join(os.getcwd(), 'config.yaml')
 
-with open(LOG_YAML, 'r') as cfg:
-    logger_config = yaml.safe_load(cfg).get('logging')
+app_config = read_config(CONFIG_YAML)
+logger_config = read_config(LOG_YAML).get('logging')
 dictConfig(logger_config)
 
 logger = logging.getLogger('server')
@@ -25,8 +25,6 @@ MM = MongoManager()
 if not MM.connected:
     logger.error('MongoManager not connected')
 
-with open(CONFIG_YAML, 'r') as yml:
-    app_config = yaml.safe_load(yml)
 
 SERVICE_TO_NUMBER_MAPPER = dict()
 for i, s in enumerate(app_config.get('services')):

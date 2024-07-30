@@ -1,6 +1,7 @@
 import os
-import yaml
 from decouple import config as env
+
+from server.app.utils.utils import read_config
 
 LETTERS_MAPPER = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e', 'є': 'ye', 'ж': 'zh',
                   'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'j', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
@@ -31,11 +32,6 @@ def translit(text):
 def to_camel_case(sentence):
     words = sentence.split()
     return words[0].lower() + ''.join(word.capitalize() for word in words[1:])
-
-
-def read_config(file_path):
-    with open(file_path, 'r') as file:
-        return yaml.safe_load(file)
 
 
 def generate_css(config, output_path):

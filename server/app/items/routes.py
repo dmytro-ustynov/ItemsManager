@@ -125,11 +125,14 @@ async def save_note(note_request: NoteRequest, user: dict = Depends(get_active_u
 
 @router.post("/export", dependencies=[Depends(get_active_user)],
              summary="Export selected IDS to csv/xls")
-async def export(ids_request: ItemsRequest):
-    ids_list = ids_request.item_ids
-    ids = [ObjectId(i) for i in ids_list]
-    item_query = MM.query(Item).find(filters=QueryBuilder.in_query(field=FieldNames.ID,
-                                                                   entities_list=ids))
+async def export(ids_request: ItemsRequest, get_all: bool = False):
+    if not get_all:
+        ids_list = ids_request.item_ids
+        ids = [ObjectId(i) for i in ids_list]
+        item_query = MM.query(Item).find(filters=QueryBuilder.in_query(field=FieldNames.ID,
+                                                                       entities_list=ids))
+    else:
+        item_query = MM.query(Item).find({})
     items = [i.to_dict() for i in item_query]
     if not items:
         return {"result": False, "details": f"No item found by this ids: {str(ids_list)}"}

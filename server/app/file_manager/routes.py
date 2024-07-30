@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from server.app.dependencies import logger, MM, get_active_user, get_root_user, get_qr_image_path
 from server.app.file_manager.file_manager import FileManager
 from server.app.items.item import FieldNames,  Item
-from server.generate_static import read_config
+from server.app.utils.utils import read_config
 
 router = APIRouter(prefix='/files',
                    tags=['FILES'])
