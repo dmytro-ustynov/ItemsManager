@@ -1,7 +1,7 @@
 import os
 from decouple import config as env
 
-from server.app.utils.utils import read_config
+from app.utils.utils import read_config
 
 LETTERS_MAPPER = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e', 'є': 'ye', 'ж': 'zh',
                   'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'j', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
