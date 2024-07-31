@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./app /code/server/app
 COPY ./logger_config.yaml /code
 COPY ./config.yaml /code
+COPY ./tag_file_tpl.docx /code
+COPY ./logo_2.jpg /code
 
 ENV DB_PORT=27017
 ENV CLIENT_HOST=localhost
