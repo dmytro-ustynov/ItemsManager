@@ -175,10 +175,12 @@ async def update_item(update_request: UpdateItemRequest):
 @router.post("/create", dependencies=[Depends(get_active_user)],
              summary="Create new item")
 async def create_new_item(item: CreateItemRequest):
-    new_item = MM.query(Item).create(item.to_dict())
-    if new_item:
-        logger.info(f'NEW ITEM CREATED: {str(new_item)} - {item.name}')
-        return {"result": True, "item": str(new_item)}
+    item_id = MM.query(Item).create(item.to_dict())
+    if item_id:
+        logger.info(f'NEW ITEM CREATED: {str(item_id)} - {item.name}')
+        new_item = item.to_dict()
+        new_item[FieldNames.ID] = str(item_id)
+        return {"result": True, "item": new_item}
     else:
         logger.error("Error creating new item ")
         return {"result": False, "details": "Error creating new item "}

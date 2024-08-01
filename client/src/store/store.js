@@ -155,6 +155,13 @@ export const StoreProvider = (({children}) => {
                 this.items = this.__allItems
                 this.counters.filtered = null
             },
+            addItem(item) {
+                this.__allItems.push(item)
+                this.items.push(item)
+                this.counters.total += 1
+                this.counters[item.service_number] = this.counters[item.service_number] + 1
+            },
+
             deleteItem(itemId) {
                 this.__allItems = this.__allItems.filter((item) => item._id !== itemId);
                 this.items = this.items.filter((item) => item._id !== itemId);

@@ -15,7 +15,7 @@ import MenuItem from "@mui/material/MenuItem";
 import {fetcher} from "../utils/fetch_utils";
 import {ALERT_LEVEL, BASE_URL, CREATE_ITEM_URL} from "../utils/constants";
 import {StoreContext} from "../store/store";
-import {SERVICES} from "../generated_constants";
+import {FILTERS, SERVICES} from "../generated_constants";
 
 export default function CreateHandlerPlus() {
     const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -24,6 +24,7 @@ export default function CreateHandlerPlus() {
     const [service, setService] = useState('')
     const [year, setYear] = useState('')
     const [serial, setSerial] = useState('')
+    const [category, setCategory] = useState('')
     const state = useAuthState()
     const user = state.user
 
@@ -39,11 +40,17 @@ export default function CreateHandlerPlus() {
         if (!!serial) {
             payload.serial = serial
         }
+        if (!!category) {
+            payload.category = category
+        }
         const response = await fetcher({url, payload, credentials: true})
         if (response.result === true) {
             setCreateDialogOpen(false)
             setAlertLevel(ALERT_LEVEL.INFO)
             setMessage('Новий елемент добавлено')
+            console.log(store.counters)
+            console.log(response.item)
+            store.addItem(response.item)
             clearForm()
         } else {
             if (response.status > 400) {
@@ -72,12 +79,16 @@ export default function CreateHandlerPlus() {
     const handleSerialChange = (event) => {
         setSerial(event.target.value)
     }
+    const handleCategoryChange = (event) => {
+        setCategory(event.target.value)
+    }
     const clearForm = () => {
         setName('')
         setService('')
         setInventoryNumber('')
         setSerial('')
         setYear('')
+        setCategory('')
     }
 
     return <div>
@@ -111,7 +122,7 @@ export default function CreateHandlerPlus() {
                         onChange={handleServiceChange}>
                         {Object.keys(SERVICES).map(key => (
                             <MenuItem key={key}
-                                      value={SERVICES[key].alias.toUpperCase()}>{SERVICES[key].name}</MenuItem>
+                                      value={SERVICES[key].dbValue}>{SERVICES[key].name}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>
@@ -126,6 +137,19 @@ export default function CreateHandlerPlus() {
                            margin="dense"
                            value={year}
                            onChange={handleYearChange}/>
+                <FormControl margin="dense">
+                    <InputLabel id="categorySelect">Категорія</InputLabel>
+                    <Select
+                        labelId="categorySelect"
+                        value={category}
+                        label="Категорія"
+                        onChange={handleCategoryChange}>
+                        {Object.values(FILTERS).map(key => (
+                            <MenuItem key={key.value}
+                                      value={key.value}>{key.title}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </DialogContent>
             <DialogActions sx={{m: 2.5}}>
                 <Button onClick={() => {

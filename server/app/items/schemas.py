@@ -1,4 +1,6 @@
 from pydantic import BaseModel, Field
+
+from server.app.dependencies import SERVICE_TO_NUMBER_MAPPER
 from server.app.items.item import FieldNames
 
 
@@ -25,6 +27,7 @@ class CreateItemRequest(BaseModel):
     name: str = Field(..., min_length=5)
     inventory_number: str = Field(..., min_length=5)
     service: str = Field(...)
+    category: str = None
     year: str = None
     serial: str = None
     payload: dict = None
@@ -48,7 +51,8 @@ class CreateItemRequest(BaseModel):
     def to_dict(self):
         result = {FieldNames.name: self.name,
                   FieldNames.inventory_number: self.inventory_number,
-                  FieldNames.service: self.service
+                  FieldNames.service: self.service,
+                  FieldNames.service_number: SERVICE_TO_NUMBER_MAPPER.get(self.service, 0)
                   }
         if self.year:
             result[FieldNames.year] = self.year
@@ -56,6 +60,8 @@ class CreateItemRequest(BaseModel):
             result[FieldNames.serial] = self.serial
         if self.payload:
             result = {**self.payload, **result}
+        if self.category:
+            result[FieldNames.category] = self.category
         return result
 
     def validate_name(self):

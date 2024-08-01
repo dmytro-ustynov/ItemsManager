@@ -61,7 +61,8 @@ def generate_js(config, output_path):
         for key, value in service.items():
             SERVICES[index] = {
                 'name': value['title'],
-                'alias': translit(key.lower())
+                'alias': translit(key.lower()),
+                'dbValue': key
             }
             SERVICE_TO_NUMBER[translit(key).upper()] = index
     js_content += "export const SERVICE_TO_NUMBER = {\n"
