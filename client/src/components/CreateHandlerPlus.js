@@ -48,8 +48,6 @@ export default function CreateHandlerPlus() {
             setCreateDialogOpen(false)
             setAlertLevel(ALERT_LEVEL.INFO)
             setMessage('Новий елемент добавлено')
-            console.log(store.counters)
-            console.log(response.item)
             store.addItem(response.item)
             clearForm()
         } else {
@@ -144,6 +142,8 @@ export default function CreateHandlerPlus() {
                         value={category}
                         label="Категорія"
                         onChange={handleCategoryChange}>
+                        <MenuItem key={"empty-category"}
+                                      value={""}>без категорії</MenuItem>
                         {Object.values(FILTERS).map(key => (
                             <MenuItem key={key.value}
                                       value={key.value}>{key.title}</MenuItem>
