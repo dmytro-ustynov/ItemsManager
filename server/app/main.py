@@ -21,7 +21,9 @@ origins = [
     # for local development
     "http://localhost",
     "http://localhost:3000",
-    origin_address
+    "http://localhost:8080",
+    origin_address,
+    "http://items.dep22",
 ]
 
 app.add_middleware(
@@ -40,4 +42,4 @@ def index():
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
+    uvicorn.run("main:app", host="localhost", port=8008, reload=True)
